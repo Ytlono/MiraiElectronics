@@ -1,0 +1,169 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Корзина</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!-- Локальное подключение Bootstrap -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <!-- Подключение favicon -->
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <style>
+        body {
+            background-color: #f8f5f0;
+            font-family: 'Noto Serif JP', serif;
+        }
+        .cart-container {
+            background-color: #fff;
+            border: 2px solid #c4a484;
+            border-radius: 8px;
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .cart-title {
+            color: #8b4513;
+            border-bottom: 3px solid #c4a484;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .cart-item {
+            background-color: #f8f5f0;
+            border: 1px solid #c4a484;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+        }
+        .cart-item:hover {
+            transform: scale(1.01);
+        }
+        .product-name {
+            color: #8b4513;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .price {
+            color: #8b4513;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .quantity-btn {
+            background-color: #c4a484;
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            border: 1px solid #c4a484;
+            border-radius: 4px;
+            padding: 5px;
+        }
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+        }
+        .cart-summary {
+            background-color: #f8f5f0;
+            border: 1px solid #c4a484;
+            border-radius: 8px;
+            padding: 20px;
+            position: sticky;
+            top: 20px;
+        }
+        .checkout-btn {
+            background-color: #8b4513;
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        .empty-cart {
+            text-align: center;
+            padding: 50px;
+            color: #8b4513;
+        }
+    </style>
+</head>
+
+<body>
+
+<header th:replace="~{blocks/header :: header}"></header>
+
+<div class="container">
+    <div class="cart-container">
+        <h1 class="cart-title">Корзина</h1>
+        
+        <!-- Если корзина пуста -->
+        <div th:if="${#lists.isEmpty(cart.cartItems)}" class="empty-cart">
+            <h3>Ваша корзина пуста</h3>
+            <a href="/" class="btn mt-3" style="background-color: #8b4513; color: white;">Перейти к покупкам</a>
+        </div>
+
+        <!-- Если в корзине есть товары -->
+        <div th:unless="${#lists.isEmpty(cart.cartItems)}" class="row">
+            <!-- Список товаров -->
+            <div class="col-md-8">
+                <div th:each="item : ${cart.cartItems}" class="cart-item">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="product-name" th:text="${item.product.name}">Product Name</div>
+                            <div class="text-muted" th:text="${item.product.model}">Model</div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="price" th:text="'₽' + ${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}">Price</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="quantity-control">
+                                <button class="quantity-btn" th:disabled="${item.quantity <= 1}">-</button>
+                                <input type="number" class="quantity-input" th:value="${item.quantity}" min="1" th:max="${item.product.stockQuantity}">
+                                <button class="quantity-btn" th:disabled="${item.quantity >= item.product.stockQuantity}">+</button>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="remove-btn">×</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Сводка заказа -->
+            <div class="col-md-4">
+                <div class="cart-summary">
+                    <h4>Сводка заказа</h4>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Товары ([[${#lists.size(cart.cartItems)}]]):</span>
+                        <span class="price" th:text="'₽' + ${#aggregates.sum(cart.cartItems.![price])}">Total</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Итого:</strong>
+                        <span class="price" style="font-size: 1.3em;" th:text="'₽' + ${#aggregates.sum(cart.cartItems.![price])}">Total</span>
+                    </div>
+                    <button class="checkout-btn">Оформить заказ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{blocks/footer :: footer}"></footer>
+
+</body>
+</html> 
