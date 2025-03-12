@@ -132,7 +132,9 @@
                             <div class="quantity-control">
                                 <button class="quantity-btn" th:disabled="${item.quantity <= 1}">-</button>
                                 <input type="number" class="quantity-input" th:value="${item.quantity}" min="1" th:max="${item.product.stockQuantity}">
-                                <button class="quantity-btn" th:disabled="${item.quantity >= item.product.stockQuantity}">+</button>
+                                <form th:action="@{'/cart/' + ${item.cartItemId} + '/increase'}" method="post" style="display:inline;">
+                                    <button type="submit" class="quantity-btn" th:disabled="${item.quantity >= item.product.stockQuantity}">+</button>
+                                </form>
                             </div>
                         </div>
                         <div class="col-md-1">

@@ -11,12 +11,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "customers", schema = "public") // Переименовал таблицу в соответствии с SQL
+@Table(name = "users", schema = "public") // Переименовал таблицу в соответствии с SQL
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "customer_id")
+    @Column(name = "user_id")
     private Integer userId;
 
     @Column(name = "first_name", nullable = false, length = 255)
