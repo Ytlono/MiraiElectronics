@@ -3,9 +3,7 @@
 <head>
     <title>Products</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <!-- Локальное подключение Bootstrap -->
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
-    <!-- Подключение favicon -->
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <style>
         .product-card {
@@ -33,6 +31,56 @@
             font-size: 1.2em;
             color: #28a745;
         }
+        .sort-container {
+            margin-bottom: 20px;
+            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .sort-select {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .filter-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 300px;
+            height: 100%;
+            background-color: #fff;
+            border-right: 1px solid #ddd;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+        .filter-panel.active {
+            transform: translateX(0);
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+        .overlay.active {
+            display: block;
+        }
+        .close-btn {
+            cursor: pointer;
+            color: #888;
+            font-size: 24px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
     </style>
 </head>
 
@@ -42,6 +90,21 @@
 
 <div class="container mt-5">
     <h1 th:text="${category.name}"></h1>
+
+    <div class="sort-container">
+        <button onclick="toggleFilters()" class="btn btn-secondary">Фильтры</button>
+        <form id="sortForm" th:action="@{/category/{categoryId}/sort(categoryId=${category.categoryId})}" method="post">
+            <input type="hidden" name="sortId" id="sortId">
+            <label for="sort">Сортировка:</label>
+            <select id="sort" class="sort-select" onchange="applySort()">
+                <option value="1">От А до Я</option>
+                <option value="2">От Я до А</option>
+                <option value="3">От дешёвого к дорогому</option>
+                <option value="4">От дорогого к дешёвому</option>
+            </select>
+        </form>
+    </div>
+
     <div class="row">
         <div class="col-md-4" th:each="product : ${products}">
             <a th:href="@{'/category/' + ${category.categoryId} + '/product/' + ${product.productId}}" class="text-decoration-none">
@@ -53,6 +116,14 @@
             </a>
         </div>
     </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleFilters()"></div>
+
+<div class="filter-panel" id="filterPanel">
+    <span class="close-btn" onclick="toggleFilters()">&times;</span>
+    <h3>Фильтры</h3>
+    <!-- Здесь будут фильтры -->
 </div>
 
 <footer th:replace="~{blocks/footer :: footer}"></footer>
@@ -68,6 +139,19 @@
                 alert('Ошибка при добавлении товара в корзину.');
             }
         });
+    }
+
+    function applySort() {
+        const sortOption = document.getElementById('sort').value;
+        document.getElementById('sortId').value = sortOption;
+        document.getElementById('sortForm').submit();
+    }
+
+    function toggleFilters() {
+        const panel = document.getElementById('filterPanel');
+        const overlay = document.getElementById('overlay');
+        panel.classList.toggle('active');
+        overlay.classList.toggle('active');
     }
 </script>
 

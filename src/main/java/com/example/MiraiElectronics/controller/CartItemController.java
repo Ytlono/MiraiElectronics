@@ -18,11 +18,14 @@ public class CartItemController {
         this.cartItemService = cartItemService;
     }
 
-    @PatchMapping("/cart/{item_id}/increase")
-    public void increaseProductsInCartItem(@PathVariable("item_id") Long itemId) {
+    @PostMapping("/cart/{item_id}/increase")
+    public String increaseProductsInCartItem(@PathVariable("item_id") Long itemId) {
         CartItem cartItem = cartItemService.getById(itemId);
         cartItem.setQuantity(cartItem.getQuantity() + 1);
+        cartItem.setPrice(cartItem.getProduct().getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
         cartItemService.updateCartItem(cartItem);
+        return "redirect:/cart"; // Перенаправление обратно на страницу корзины
     }
+
 
 }
