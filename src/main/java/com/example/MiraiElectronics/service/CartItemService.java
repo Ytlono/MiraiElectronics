@@ -1,7 +1,9 @@
 package com.example.MiraiElectronics.service;
 
+import com.example.MiraiElectronics.repository.Cart;
 import com.example.MiraiElectronics.repository.CartItem;
 import com.example.MiraiElectronics.repository.CartItemRepository;
+import com.example.MiraiElectronics.repository.Product;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,18 +11,23 @@ import java.math.BigDecimal;
 
 @Service
 public class CartItemService {
-     private final CartItemRepository cartItemRepository;
+    private final CartItemRepository cartItemRepository;
 
     public CartItemService(CartItemRepository cartItemRepository) {
         this.cartItemRepository = cartItemRepository;
     }
 
-    public  CartItem getById(Long id){
+    public CartItem getById(Long id) {
         return cartItemRepository.findById(id).orElseThrow();
     }
 
-    public void createCartItem(CartItem cartItem){
-        cartItemRepository.save(cartItem);
+    public CartItem createCartItem(Product product, int quantity, Cart cart) {
+        CartItem cartItem = new CartItem();
+        cartItem.setProduct(product);
+        cartItem.setQuantity(quantity);
+        cartItem.setCart(cart);
+        cartItem.setPrice(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+        return cartItemRepository.save(cartItem);
     }
 
     @Transactional

@@ -2,6 +2,7 @@ package com.example.MiraiElectronics.controller;
 
 import com.example.MiraiElectronics.repository.CartItem;
 import com.example.MiraiElectronics.repository.Product;
+import com.example.MiraiElectronics.service.CartItemService;
 import com.example.MiraiElectronics.service.CartService;
 import com.example.MiraiElectronics.service.ProductService;
 import org.springframework.stereotype.Controller;
@@ -15,10 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class CartController {
     private final CartService cartService;
     private final ProductService productService;
+    private final CartItemService cartItemService;
 
-    public CartController(CartService cartService, ProductService productService) {
+    public CartController(CartService cartService, ProductService productService, CartItemService cartItemService) {
         this.cartService = cartService;
         this.productService = productService;
+        this.cartItemService = cartItemService;
     }
 
 
@@ -29,9 +32,9 @@ public class CartController {
     }
 
     @PostMapping("/cart/addToCart/{productId}")
-    public String addToCart(@PathVariable Long productId){
+    public String addToCart(@PathVariable Long productId) {
         Product product = productService.findById(productId);
-        return "";
+        cartService.addItem(product, 1, 1L); // Добавляем сразу через сервис
+        return "redirect:/cart";
     }
-
 }

@@ -107,13 +107,15 @@
 
     <div class="row">
         <div class="col-md-4" th:each="product : ${products}">
-            <a th:href="@{'/category/' + ${category.categoryId} + '/product/' + ${product.productId}}" class="text-decoration-none">
-                <div class="product-card">
+            <div class="product-card">
+                <a th:href="@{'/category/' + ${category.categoryId} + '/product/' + ${product.productId}}" class="text-decoration-none">
                     <div class="product-title" th:text="${product.name}"></div>
                     <div class="product-price" th:text="${product.price + ' $'}"></div>
-                    <button class="btn btn-primary" th:onclick="|addToCart(${product.productId})|">Добавить в корзину</button>
-                </div>
-            </a>
+                </a>
+                <form th:action="@{'/cart/addToCart/' + ${product.productId}}" method="post">
+                    <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
