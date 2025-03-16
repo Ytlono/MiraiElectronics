@@ -28,8 +28,10 @@ public class Product {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "category_id", nullable = false)
-    private int categoryId;
+    // Изменяем поле categoryId на связь с Category
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "category_id", insertable = false, updatable = false)
+    private Category category;
 
     @Column(name = "brand_id", nullable = false)
     private int brandId;

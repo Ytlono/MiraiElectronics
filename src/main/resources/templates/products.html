@@ -125,7 +125,29 @@
 <div class="filter-panel" id="filterPanel">
     <span class="close-btn" onclick="toggleFilters()">&times;</span>
     <h3>Фильтры</h3>
-    <!-- Здесь будут фильтры -->
+
+    <!-- Фильтр по цене с ползунками -->
+    <div class="filter-group">
+        <label for="minPrice">Минимальная цена: <span id="minPriceLabel">0</span> $</label>
+        <input type="range" id="minPrice" name="minPrice" min="0" max="1000" value="0" step="10" class="form-control">
+    </div>
+
+    <div class="filter-group">
+        <label for="maxPrice">Максимальная цена: <span id="maxPriceLabel">1000</span> $</label>
+        <input type="range" id="maxPrice" name="maxPrice" min="0" max="1000" value="1000" step="10" class="form-control">
+    </div>
+
+    <div class="filter-group">
+        <label for="minPriceInput">Минимальная цена: </label>
+        <input type="number" id="minPriceInput" name="minPrice" min="0" max="1000" value="0" class="form-control">
+    </div>
+
+    <div class="filter-group">
+        <label for="maxPriceInput">Максимальная цена: </label>
+        <input type="number" id="maxPriceInput" name="maxPrice" min="0" max="1000" value="1000" class="form-control">
+    </div>
+
+    <button class="btn btn-primary" onclick="applyFilters()">Применить фильтры</button>
 </div>
 
 <footer th:replace="~{blocks/footer :: footer}"></footer>
@@ -154,6 +176,60 @@
         const overlay = document.getElementById('overlay');
         panel.classList.toggle('active');
         overlay.classList.toggle('active');
+    }
+
+     // Обновляем метки ползунков
+    const minPriceSlider = document.getElementById('minPrice');
+    const maxPriceSlider = document.getElementById('maxPrice');
+    const minPriceLabel = document.getElementById('minPriceLabel');
+    const maxPriceLabel = document.getElementById('maxPriceLabel');
+    const minPriceInput = document.getElementById('minPriceInput');
+    const maxPriceInput = document.getElementById('maxPriceInput');
+
+    minPriceSlider.oninput = function() {
+        minPriceLabel.textContent = minPriceSlider.value;
+        minPriceInput.value = minPriceSlider.value;
+    };
+
+    maxPriceSlider.oninput = function() {
+        maxPriceLabel.textContent = maxPriceSlider.value;
+        maxPriceInput.value = maxPriceSlider.value;
+    };
+
+    minPriceInput.oninput = function() {
+        minPriceSlider.value = minPriceInput.value;
+        minPriceLabel.textContent = minPriceInput.value;
+    };
+
+    maxPriceInput.oninput = function() {
+        maxPriceSlider.value = maxPriceInput.value;
+        maxPriceLabel.textContent = maxPriceInput.value;
+    };
+
+    // Функция для отправки фильтров
+    function applyFilters() {
+        const minPrice = document.getElementById('minPrice').value;
+        const maxPrice = document.getElementById('maxPrice').value;
+
+        // Отправка фильтров через форму
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = '/category/' + [[${category.categoryId}]] + '/filter';
+
+        const minPriceInput = document.createElement('input');
+        minPriceInput.type = 'hidden';
+        minPriceInput.name = 'minPrice';
+        minPriceInput.value = minPrice;
+
+        const maxPriceInput = document.createElement('input');
+        maxPriceInput.type = 'hidden';
+        maxPriceInput.name = 'maxPrice';
+        maxPriceInput.value = maxPrice;
+
+        form.appendChild(minPriceInput);
+        form.appendChild(maxPriceInput);
+        document.body.appendChild(form);
+        form.submit();
     }
 </script>
 

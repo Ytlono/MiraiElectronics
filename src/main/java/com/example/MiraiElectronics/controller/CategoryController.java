@@ -2,10 +2,14 @@ package com.example.MiraiElectronics.controller;
 
 import com.example.MiraiElectronics.repository.Category;
 import com.example.MiraiElectronics.repository.CategoryRepository;
+import com.example.MiraiElectronics.repository.Product;
 import com.example.MiraiElectronics.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/category")
@@ -38,4 +42,15 @@ public class CategoryController {
         return "products";  // Возвращаем отсортированные товары
     }
 
+    @PostMapping("/{categoryId}/filter")
+    public String filterByPrice(@PathVariable Long categoryId,
+                                @RequestParam(required = false) BigDecimal minPrice,
+                                @RequestParam(required = false) BigDecimal maxPrice,
+                                Model model){
+        Category category = categoryRepository.findById(categoryId).orElseThrow();
+        model.addAttribute("category", category);
+        List<Product> products = productService.filterByPrice(categoryId,minPrice,maxPrice);
+        model.addAttribute("products",products);
+        return "products";
+    }
 }

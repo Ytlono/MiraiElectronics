@@ -1,7 +1,9 @@
 package com.example.MiraiElectronics.service;
 
+import com.example.MiraiElectronics.repository.Category;
 import com.example.MiraiElectronics.repository.Product;
 import com.example.MiraiElectronics.repository.ProductRepository;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -39,7 +41,6 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    // ✅ Возвращаем отсортированный список
     public List<Product> sorter(Long categoryId, int sortId) {
         return switch (sortId) {
             case 1 -> sortByNameAsc(categoryId);
@@ -60,10 +61,6 @@ public class ProductService {
         return templateSortService.sort(products, compareByPriceDescending());
     }
 
-    private Comparator<Product> compareByPriceDescending() {
-        return Comparator.comparing(Product::getPrice).reversed();
-    }
-
     public List<Product> sortByNameAsc(Long id) {
         List<Product> products = findByCategoryId(id);
         return templateSortService.sort(products, compareByNameAscending());
@@ -74,8 +71,20 @@ public class ProductService {
         return templateSortService.sort(products, compareByNameDescending());
     }
 
+    public List<Product> filterByPrice(Long categoryId,BigDecimal min, BigDecimal max){
+        Specification<Product> spec = Specification
+                .where(FilterService.hasCategory(categoryId))
+                .and(FilterService.hasPriceBetween(min, max));
+        return productRepository.findAll(spec);
+    }
+
+
     private Comparator<Product> compareByPrice() {
         return Comparator.comparing(Product::getPrice);
+    }
+
+    private Comparator<Product> compareByPriceDescending() {
+        return Comparator.comparing(Product::getPrice).reversed();
     }
 
     private Comparator<Product> compareByNameAscending() {
