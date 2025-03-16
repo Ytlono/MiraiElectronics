@@ -1,5 +1,6 @@
 package com.example.MiraiElectronics.service;
 
+import com.example.MiraiElectronics.dto.IFilterDTO;
 import com.example.MiraiElectronics.repository.Category;
 import com.example.MiraiElectronics.repository.Product;
 import com.example.MiraiElectronics.repository.ProductRepository;
@@ -13,7 +14,7 @@ import java.util.Optional;
 
 @Service
 public class ProductService {
-    private final ProductRepository productRepository;
+    protected final ProductRepository productRepository;
     private final TemplateSortService templateSortService;
 
     public ProductService(ProductRepository productRepository, TemplateSortService templateSortService) {
@@ -71,12 +72,11 @@ public class ProductService {
         return templateSortService.sort(products, compareByNameDescending());
     }
 
-    public List<Product> filterByPrice(Long categoryId,BigDecimal min, BigDecimal max){
-        Specification<Product> spec = Specification
-                .where(FilterService.hasCategory(categoryId))
-                .and(FilterService.hasPriceBetween(min, max));
-        return productRepository.findAll(spec);
+
+    public List<Product> filterProducts(Long categoryId, IFilterDTO filterDTO) {
+        return productRepository.findAll();
     }
+
 
 
     private Comparator<Product> compareByPrice() {

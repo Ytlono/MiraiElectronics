@@ -7,8 +7,6 @@ import com.example.MiraiElectronics.repository.Product;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-
 @Service
 public class CartService {
     private final CartRepository cartRepository;

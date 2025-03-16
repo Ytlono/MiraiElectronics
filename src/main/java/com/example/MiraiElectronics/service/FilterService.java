@@ -18,4 +18,9 @@ public class FilterService {
         return (root, query, cb) -> cb.equal(root.get("category").get("id"), categoryId);
     }
 
+    public static Specification<Product> hasSSD(int memory) {
+        String attributeValue = String.valueOf(memory);
+        return (root, query, cb) -> cb.equal(root.get("attributes").get("SSD"), attributeValue);
+    }
+
 }

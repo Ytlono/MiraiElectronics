@@ -1,6 +1,5 @@
 package com.example.MiraiElectronics.controller;
 
-import com.example.MiraiElectronics.repository.CartItem;
 import com.example.MiraiElectronics.repository.Product;
 import com.example.MiraiElectronics.service.CartItemService;
 import com.example.MiraiElectronics.service.CartService;
@@ -10,7 +9,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class CartController {
