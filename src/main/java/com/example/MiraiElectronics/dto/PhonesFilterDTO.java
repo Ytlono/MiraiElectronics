@@ -10,7 +10,5 @@ public class PhonesFilterDTO implements IFilterDTO{
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
     private List<Integer> ssdList;
-    private List<String> brands;
-    private Integer minMemory;
-    private Integer maxMemory;
+    private List<Integer> brands;
 }

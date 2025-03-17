@@ -22,7 +22,7 @@ public class CartItemController {
         cartItem.setQuantity(cartItem.getQuantity() + 1);
         cartItem.setPrice(cartItem.getProduct().getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
         cartItemService.updateCartItem(cartItem);
-        return "redirect:/cart"; // Перенаправление обратно на страницу корзины
+        return "redirect:/cart";
     }
 
 
