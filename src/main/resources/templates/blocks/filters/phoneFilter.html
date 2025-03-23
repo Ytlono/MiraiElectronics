@@ -1,0 +1,41 @@
+<div id="phoneFilters" style="display: none;">
+    <!-- Фильтр по цене с ползунками -->
+    <div class="filter-group">
+        <label for="minPrice">Минимальная цена: <span id="minPriceLabel">0</span> $</label>
+        <input type="range" id="minPrice" name="minPrice" min="0" max="1000" value="0" step="10" class="form-control">
+    </div>
+
+    <div class="filter-group">
+        <label for="maxPrice">Максимальная цена: <span id="maxPriceLabel">1000</span> $</label>
+        <input type="range" id="maxPrice" name="maxPrice" min="0" max="1000" value="1000" step="10" class="form-control">
+    </div>
+
+    <!-- Фильтр по SSD -->
+    <div class="filter-group">
+        <label>SSD (ГБ):</label>
+        <input type="checkbox" name="ssdList" value="64"> 64
+        <input type="checkbox" name="ssdList" value="128"> 128
+        <input type="checkbox" name="ssdList" value="256"> 256
+        <input type="checkbox" name="ssdList" value="512"> 512
+    </div>
+
+    <!-- Фильтр по бренду -->
+    <div class="filter-group">
+        <label>Бренды:</label>
+        <input type="checkbox" name="brands" value="Apple"> Apple
+        <input type="checkbox" name="brands" value="Samsung"> Samsung
+        <input type="checkbox" name="brands" value="Xiaomi"> Xiaomi
+        <input type="checkbox" name="brands" value="Huawei"> Huawei
+    </div>
+
+    <!-- Фильтр по памяти -->
+    <div class="filter-group">
+        <label for="minMemory">Минимальная память (ГБ):</label>
+        <input type="number" id="minMemory" name="minMemory" min="1" max="512" value="1" class="form-control">
+    </div>
+
+    <div class="filter-group">
+        <label for="maxMemory">Максимальная память (ГБ):</label>
+        <input type="number" id="maxMemory" name="maxMemory" min="1" max="512" value="512" class="form-control">
+    </div>
+</div>
