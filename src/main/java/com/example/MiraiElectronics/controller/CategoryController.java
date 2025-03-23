@@ -32,12 +32,7 @@ public class CategoryController {
     public String categorySelector(@PathVariable Long id, Model model) {
         Category category = categoryRepository.findById(id).orElseThrow();
 
-        IFilterDTO filterDTO = null;
-        if (category.getCategoryId() == 1) {
-            filterDTO = new PhonesFilterDTO();  // Или создайте другой фильтр для компьютеров
-        } else if (category.getCategoryId() == 2) {
-            filterDTO = new ComputerFilterDTO();
-        }
+        PhonesFilterDTO filterDTO = new PhonesFilterDTO();
         model.addAttribute("category", category);
         model.addAttribute("products", productService.findByCategoryId(id));
         model.addAttribute("filterDTO", filterDTO);
@@ -62,20 +57,12 @@ public class CategoryController {
         model.addAttribute("category", category);
 
         List<Product> filteredProducts;
-
-        switch (categoryId.intValue()) {
-            case 1: // Телефоны
-                PhonesFilterDTO phonesFilterDTO = (PhonesFilterDTO) filterDTO;
-                filteredProducts = phonesService.filterProducts(categoryId, phonesFilterDTO);
-                break;
-            default:
-                filteredProducts = productService.findByCategoryId(categoryId);
-                break;
-        }
+        filteredProducts = phonesService.filterProducts(categoryId, filterDTO);
 
         model.addAttribute("products", filteredProducts);
         return "products";
     }
+
 
 
 }

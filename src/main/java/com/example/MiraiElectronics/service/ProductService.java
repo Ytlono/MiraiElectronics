@@ -77,8 +77,6 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-
-
     private Comparator<Product> compareByPrice() {
         return Comparator.comparing(Product::getPrice);
     }

@@ -18,7 +18,7 @@
 
     <div class="sort-container">
         <button onclick="toggleFilters()" class="btn btn-secondary">Фильтры</button>
-        <form id="sortForm" th:action="@{/category/{categoryId}/sort(categoryId=${category.categoryId})}" method="post">
+        <form th:action="@{/category/{categoryId}/filter(id=${category.id})}" method="post" th:object="${filterDTO}">
             <input type="hidden" name="sortId" id="sortId">
             <label for="sort">Сортировка:</label>
             <select id="sort" class="sort-select" onchange="applySort()">
@@ -50,41 +50,41 @@
     <span class="close-btn" onclick="toggleFilters()">&times;</span>
     <h3>Фильтры</h3>
 
-    <form id="filterForm" th:action="@{/category/{categoryId}/filter(categoryId=${category.categoryId})}" method="post" th:object="${filterDTO}">
+    <form th:action="@{'/category/' + ${category.categoryId} + '/filter'}" method="post" th:object="${filterDTO}">
         <div id="phoneFilters" style="display: none;">
             <!-- Фильтр по цене с ползунками -->
+            <!-- Фильтр по цене с ползунками -->
             <div class="filter-group">
-                <label for="minPrice">Минимальная цена: <span id="minPriceLabel" th:text="*{minPrice}"></span> $</label>
-                <input type="range" id="minPrice" name="minPrice" th:value="*{minPrice}" min="0" max="1000" value="0" step="10" class="form-control">
+                <label for="minPrice">Минимальная цена: <span id="minPriceLabel">0</span> $</label>
+                <input type="range" id="minPrice" name="minPrice" min="0" max="1000" value="0" step="10" class="form-control">
             </div>
 
             <div class="filter-group">
-                <label for="maxPrice">Максимальная цена: <span id="maxPriceLabel" th:text="*{maxPrice}"></span> $</label>
-                <input type="range" id="maxPrice" name="maxPrice" th:value="*{maxPrice}" min="0" max="1000" value="1000" step="10" class="form-control">
+                <label for="maxPrice">Максимальная цена: <span id="maxPriceLabel">1000</span> $</label>
+                <input type="range" id="maxPrice" name="maxPrice" min="0" max="1000" value="1000" step="10" class="form-control">
             </div>
 
-            <!-- Фильтр по SSD -->
             <div class="filter-group">
-                <label>SSD (ГБ):</label>
-                <input type="checkbox" name="ssdList" value="64" th:field="*{ssdList}" /> 64
-                <input type="checkbox" name="ssdList" value="128" th:field="*{ssdList}" /> 128
-                <input type="checkbox" name="ssdList" value="256" th:field="*{ssdList}" /> 256
-                <input type="checkbox" name="ssdList" value="512" th:field="*{ssdList}" /> 512
+                <label for="minPriceInput">Минимальная цена: </label>
+                <input type="number" id="minPriceInput" name="minPrice" min="0" max="1000" value="0" class="form-control">
             </div>
 
-            <!-- Фильтр по бренду -->
             <div class="filter-group">
-                <label>Бренды:</label>
-                <input type="checkbox" name="brands" value="3" th:field="*{brands}" /> Apple
-                <input type="checkbox" name="brands" value="1" th:field="*{brands}" /> Samsung
-                <input type="checkbox" name="brands" value="4" th:field="*{brands}" /> Google
-                <input type="checkbox" name="brands" value="6" th:field="*{brands}" /> Xiaomi
-                <input type="checkbox" name="brands" value="5" th:field="*{brands}" /> OnePlus
+                <label for="maxPriceInput">Максимальная цена: </label>
+                <input type="number" id="maxPriceInput" name="maxPrice" min="0" max="1000" value="1000" class="form-control">
             </div>
-        </div>
 
-        <div id="computerFilters" style="display: none;">
-            <!-- Пустой блок для фильтров компьютеров -->
+            <<input type="checkbox" name="ssdList" value="64" th:field="*{ssdList}" /> 64
+            <input type="checkbox" name="ssdList" value="128" th:field="*{ssdList}" /> 128
+            <input type="checkbox" name="ssdList" value="256" th:field="*{ssdList}" /> 256
+            <input type="checkbox" name="ssdList" value="512" th:field="*{ssdList}" /> 512
+
+            <input type="checkbox" name="brands" value="3" th:field="*{brands}" /> Apple
+            <input type="checkbox" name="brands" value="1" th:field="*{brands}" /> Samsung
+            <input type="checkbox" name="brands" value="4" th:field="*{brands}" /> Google
+            <input type="checkbox" name="brands" value="6" th:field="*{brands}" /> Xiaomi
+            <input type="checkbox" name="brands" value="5" th:field="*{brands}" /> OnePlus
+
         </div>
 
         <button class="btn btn-primary" type="submit">Применить фильтры</button>
@@ -127,7 +127,7 @@
     const minPriceInput = document.getElementById('minPriceInput');
     const maxPriceInput = document.getElementById('maxPriceInput');
 
-    minPriceSlider.oninput = function() {
+      minPriceSlider.oninput = function() {
         minPriceLabel.textContent = minPriceSlider.value;
         minPriceInput.value = minPriceSlider.value;
     };
@@ -135,6 +135,16 @@
     maxPriceSlider.oninput = function() {
         maxPriceLabel.textContent = maxPriceSlider.value;
         maxPriceInput.value = maxPriceSlider.value;
+    };
+
+    minPriceInput.oninput = function() {
+        minPriceSlider.value = minPriceInput.value;
+        minPriceLabel.textContent = minPriceInput.value;
+    };
+
+    maxPriceInput.oninput = function() {
+        maxPriceSlider.value = maxPriceInput.value;
+        maxPriceLabel.textContent = maxPriceInput.value;
     };
 
 
