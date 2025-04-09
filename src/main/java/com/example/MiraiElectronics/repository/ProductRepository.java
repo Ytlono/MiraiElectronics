@@ -1,6 +1,6 @@
 package com.example.MiraiElectronics.repository;
 
-import com.example.MiraiElectronics.repository.Product;
+import com.example.MiraiElectronics.repository.realization.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;

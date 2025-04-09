@@ -1,21 +1,19 @@
 package com.example.MiraiElectronics.controller;
 
 import com.example.MiraiElectronics.dto.ComputerDTO;
-import com.example.MiraiElectronics.dto.IFilterDTO;
 import com.example.MiraiElectronics.dto.PhonesFilterDTO;
-import com.example.MiraiElectronics.repository.Category;
+import com.example.MiraiElectronics.repository.realization.Category;
 import com.example.MiraiElectronics.repository.CategoryRepository;
-import com.example.MiraiElectronics.repository.Product;
-import com.example.MiraiElectronics.service.PhonesService;
-import com.example.MiraiElectronics.service.ProductService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import com.example.MiraiElectronics.repository.realization.Product;
+import com.example.MiraiElectronics.service.ProductServices.PhonesService;
+import com.example.MiraiElectronics.service.ProductServices.ProductService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
-@RequestMapping("/category")
+@RestController
+@RequestMapping("/api/category")
 public class CategoryController {
 
     private final ProductService productService;
@@ -29,50 +27,35 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public String categorySelector(@PathVariable Long id, Model model) {
+    public ResponseEntity<?> getCategoryProducts(@PathVariable Long id) {
         Category category = categoryRepository.findById(id).orElseThrow();
-        model.addAttribute("category", category);
-        model.addAttribute("products", productService.findByCategoryId(id));
+        List<Product> products = productService.findByCategoryId(id);
 
-        return "products";
+        return ResponseEntity.ok().body(products);
     }
 
     @PostMapping("/{categoryId}/sort")
-    public String sorting(@PathVariable Long categoryId, @RequestParam int sortId, Model model) {
-        Category category = categoryRepository.findById(categoryId).orElseThrow();
-        model.addAttribute("category", category);
-        model.addAttribute("products", productService.sorter(categoryId, sortId));
+    public ResponseEntity<?> sortProducts(@PathVariable Long categoryId, @RequestParam int sortId) {
+        categoryRepository.findById(categoryId).orElseThrow();
+        List<Product> sortedProducts = productService.sorter(categoryId, sortId);
 
-        return "products";  // Возвращаем отсортированные товары
+        return ResponseEntity.ok().body(sortedProducts);
     }
 
-    @PostMapping("/{categoryId}/filter")
-    public String filterProducts(@PathVariable Long categoryId,
-                                 @RequestParam String type,
-                                 @ModelAttribute IFilterDTO filterDTO,
-                                 Model model) {
-        Category category = categoryRepository.findById(categoryId).orElseThrow();
-        model.addAttribute("category", category);
+    @PostMapping("/{categoryId}/filter/phones")
+    public ResponseEntity<?> filterPhones(@PathVariable Long categoryId,
+                                          @RequestBody PhonesFilterDTO filterDTO) {
+        List<Product> filtered = phonesService.filterProducts(categoryId, filterDTO);
+        return ResponseEntity.ok(filtered);
+    }
 
-        List<Product> filteredProducts;
-
-        switch (type) {
-            case "phones":
-                PhonesFilterDTO phonesFilterDTO = (PhonesFilterDTO) filterDTO;
-                filteredProducts = phonesService.filterProducts(categoryId, phonesFilterDTO);
-                break;
-            case "computers":
-                ComputerDTO computerDTO = (ComputerDTO) filterDTO;
-                filteredProducts = phonesService.filterProducts(categoryId, computerDTO);
-                break;
-            default:
-                filteredProducts = productService.findByCategoryId(categoryId);
-                break;
-        }
-
-        model.addAttribute("products", filteredProducts);
-        return "products";
+    @PostMapping("/{categoryId}/filter/computers")
+    public ResponseEntity<?> filterComputers(@PathVariable Long categoryId,
+                                             @RequestBody ComputerDTO filterDTO) {
+        List<Product> filtered = phonesService.filterProducts(categoryId, filterDTO);
+        return ResponseEntity.ok(filtered);
     }
 
 }
+
 

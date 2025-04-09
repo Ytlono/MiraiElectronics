@@ -1,6 +1,6 @@
 //package com.example.MiraiElectronics.config;
 //
-//import com.example.MiraiElectronics.repository.User;
+//import com.example.MiraiElectronics.repository.realization.User;
 //import org.springframework.context.annotation.Bean;
 //import org.springframework.context.annotation.Configuration;
 //import org.springframework.security.authentication.AuthenticationManager;

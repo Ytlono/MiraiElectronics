@@ -1,6 +1,6 @@
 package com.example.MiraiElectronics.service;
 
-import com.example.MiraiElectronics.repository.Category;
+import com.example.MiraiElectronics.repository.realization.Category;
 import com.example.MiraiElectronics.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
 

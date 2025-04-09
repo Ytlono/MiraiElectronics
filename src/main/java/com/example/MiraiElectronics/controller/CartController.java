@@ -1,16 +1,16 @@
 package com.example.MiraiElectronics.controller;
 
-import com.example.MiraiElectronics.repository.Product;
+import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.service.CartItemService;
 import com.example.MiraiElectronics.service.CartService;
-import com.example.MiraiElectronics.service.ProductService;
-import org.springframework.stereotype.Controller;
+import com.example.MiraiElectronics.service.ProductServices.ProductService;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 public class CartController {
     private final CartService cartService;
     private final ProductService productService;

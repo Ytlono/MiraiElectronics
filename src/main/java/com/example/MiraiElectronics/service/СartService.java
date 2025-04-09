@@ -1,9 +1,9 @@
 package com.example.MiraiElectronics.service;
 
-import com.example.MiraiElectronics.repository.Cart;
-import com.example.MiraiElectronics.repository.CartItem;
+import com.example.MiraiElectronics.repository.realization.Cart;
+import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.repository.CartRepository;
-import com.example.MiraiElectronics.repository.Product;
+import com.example.MiraiElectronics.repository.realization.Product;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

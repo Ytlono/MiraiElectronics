@@ -1,14 +1,14 @@
 package com.example.MiraiElectronics.controller;
 
-import com.example.MiraiElectronics.repository.CartItem;
+import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.service.CartItemService;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 
-@Controller
+@RestController
 public class CartItemController {
     public final CartItemService cartItemService;
 

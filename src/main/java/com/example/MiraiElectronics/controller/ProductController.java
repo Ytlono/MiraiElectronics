@@ -1,15 +1,15 @@
 package com.example.MiraiElectronics.controller;
 
-import com.example.MiraiElectronics.repository.Product;
-import com.example.MiraiElectronics.service.ProductService;
+import com.example.MiraiElectronics.repository.realization.Product;
+import com.example.MiraiElectronics.service.ProductServices.ProductService;
 import com.example.MiraiElectronics.service.CategoryService;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @RequestMapping("/category/{categoryId}")
 public class ProductController {
 
