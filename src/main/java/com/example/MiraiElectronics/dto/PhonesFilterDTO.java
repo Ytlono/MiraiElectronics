@@ -12,12 +12,6 @@ import java.util.Map;
 public class PhonesFilterDTO implements IFilterDTO {
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
-//    private List<Integer> ssdList;
-//    private List<Integer> ramList;
-//    private List<String> colorList;
-//    private Integer minMemory;
-//    private Integer maxMemory;
-    private List<String> brands;
 
     private Map<String, Object> additionalFilters = new HashMap<>();
 

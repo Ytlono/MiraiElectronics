@@ -1,13 +1,15 @@
 package com.example.MiraiElectronics.service.ProductServices;
 
 import com.example.MiraiElectronics.dto.IFilterDTO;
+import com.example.MiraiElectronics.dto.PhonesFilterDTO;
 import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.repository.ProductRepository;
+import com.example.MiraiElectronics.service.FilterServices.FilterService;
 import com.example.MiraiElectronics.service.TemplateSortService;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ProductService {
@@ -38,6 +40,7 @@ public class ProductService {
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
+
 
     public List<Product> sorter(Long categoryId, int sortId) {
         return switch (sortId) {
@@ -70,10 +73,47 @@ public class ProductService {
     }
 
 
-    public List<Product> filterProducts(Long categoryId, IFilterDTO filterDTO) {
-        return productRepository.findAll();
+    public List<Product> filterByAdditionalSpec(Long categoryId, String nameSpec, Object value) {
+        Set<Product> productSet = new HashSet<>();
+
+        if (value instanceof String valStr) {
+            Specification<Product> spec = Specification
+                    .where(FilterService.hasCategory(categoryId))
+                    .and(FilterService.hasAdditionalSpec(nameSpec, valStr));
+            productSet.addAll(productRepository.findAll(spec));
+        } else if (value instanceof List<?> valList) {
+            for (Object val : valList) {
+                if (val instanceof String valStr) {
+                    Specification<Product> spec = Specification
+                            .where(FilterService.hasCategory(categoryId))
+                            .and(FilterService.hasAdditionalSpec(nameSpec, valStr));
+                    productSet.addAll(productRepository.findAll(spec));
+                }
+            }
+        }
+
+        return new ArrayList<>(productSet);
     }
 
+    public List<Product> filterProducts(Long categoryId, IFilterDTO filterDTO) {
+        PhonesFilterDTO phonesFilterDTO = (PhonesFilterDTO) filterDTO;
+
+        Specification<Product> spec = Specification.where(FilterService.hasCategory(categoryId));
+
+        if (phonesFilterDTO.getMinPrice() != null && phonesFilterDTO.getMaxPrice() != null) {
+            spec = spec.and(FilterService.hasPriceBetween(
+                    phonesFilterDTO.getMinPrice(), phonesFilterDTO.getMaxPrice()));
+        }
+
+        List<Product> filteredProducts = productRepository.findAll(spec);
+
+        if(phonesFilterDTO.getAdditionalFilters() != null && !phonesFilterDTO.getAdditionalFilters().isEmpty()){
+            for (Map.Entry<String,Object> entry : phonesFilterDTO.getAdditionalFilters().entrySet()){
+                filteredProducts.retainAll(filterByAdditionalSpec(categoryId, entry.getKey(),entry.getValue()));
+            }
+        }
+        return filteredProducts;
+    }
 
 
     private Comparator<Product> compareByPrice() {

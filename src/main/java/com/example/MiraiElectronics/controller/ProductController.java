@@ -1,16 +1,17 @@
 package com.example.MiraiElectronics.controller;
 
+import com.example.MiraiElectronics.dto.ComputerDTO;
+import com.example.MiraiElectronics.dto.PhonesFilterDTO;
 import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.service.ProductServices.ProductService;
 import com.example.MiraiElectronics.service.CategoryService;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/category/{categoryId}")
+@RequestMapping("/api/product")
 public class ProductController {
 
     private final ProductService productService;
@@ -21,14 +22,28 @@ public class ProductController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping("/product/{productId}")
-    public String getProduct(@PathVariable Long categoryId, @PathVariable Long productId, Model model) {
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> getProduct(@PathVariable Long productId) {
         Product product = productService.findById(productId);
-        
-        model.addAttribute("product", product);
-        model.addAttribute("category", categoryService.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category not found")));
-        
-        return "product";
+        return ResponseEntity.ok(product);
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<?> getProductsByCategory(@PathVariable Long categoryId) {
+        List<Product> products = productService.findByCategoryId(categoryId);
+        return ResponseEntity.ok(products);
+    }
+
+    @PostMapping("/category/{categoryId}/sort")
+    public ResponseEntity<?> sortProducts(@PathVariable Long categoryId, @RequestParam int sortId) {
+        List<Product> sortedProducts = productService.sorter(categoryId, sortId);
+        return ResponseEntity.ok(sortedProducts);
+    }
+
+    @PostMapping("/category/{categoryId}/filter")
+    public ResponseEntity<?> filterProducts(@PathVariable Long categoryId,
+                                          @RequestBody PhonesFilterDTO filterDTO) {
+        List<Product> filtered = productService.filterProducts(categoryId, filterDTO);
+        return ResponseEntity.ok(filtered);
     }
 }

@@ -25,7 +25,6 @@ public class CartItemService {
         CartItem cartItem = new CartItem();
         cartItem.setProduct(product);
         cartItem.setQuantity(quantity);
-        cartItem.setCart(cart);
         cartItem.setPrice(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
         return cartItemRepository.save(cartItem);
     }

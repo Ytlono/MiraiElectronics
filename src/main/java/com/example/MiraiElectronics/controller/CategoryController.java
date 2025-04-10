@@ -5,7 +5,7 @@ import com.example.MiraiElectronics.dto.PhonesFilterDTO;
 import com.example.MiraiElectronics.repository.realization.Category;
 import com.example.MiraiElectronics.repository.CategoryRepository;
 import com.example.MiraiElectronics.repository.realization.Product;
-import com.example.MiraiElectronics.service.ProductServices.PhonesService;
+import com.example.MiraiElectronics.service.CategoryService;
 import com.example.MiraiElectronics.service.ProductServices.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,43 +17,46 @@ import java.util.List;
 public class CategoryController {
 
     private final ProductService productService;
-    private final PhonesService phonesService;
     private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
-    public CategoryController(ProductService productService, PhonesService phonesService, CategoryRepository categoryRepository) {
+    public CategoryController(ProductService productService, CategoryRepository categoryRepository,CategoryService categoryService) {
         this.productService = productService;
-        this.phonesService = phonesService;
         this.categoryRepository = categoryRepository;
+        this.categoryService = categoryService;
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCategoryProducts(@PathVariable Long id) {
-        Category category = categoryRepository.findById(id).orElseThrow();
-        List<Product> products = productService.findByCategoryId(id);
-
-        return ResponseEntity.ok().body(products);
+    public ResponseEntity<?> getCategory(@PathVariable Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        return ResponseEntity.ok(category);
     }
 
-    @PostMapping("/{categoryId}/sort")
-    public ResponseEntity<?> sortProducts(@PathVariable Long categoryId, @RequestParam int sortId) {
-        categoryRepository.findById(categoryId).orElseThrow();
-        List<Product> sortedProducts = productService.sorter(categoryId, sortId);
-
-        return ResponseEntity.ok().body(sortedProducts);
+    @GetMapping
+    public ResponseEntity<?> getAllCategories() {
+        List<Category> categories = categoryRepository.findAll();
+        return ResponseEntity.ok(categories);
     }
 
-    @PostMapping("/{categoryId}/filter/phones")
-    public ResponseEntity<?> filterPhones(@PathVariable Long categoryId,
-                                          @RequestBody PhonesFilterDTO filterDTO) {
-        List<Product> filtered = phonesService.filterProducts(categoryId, filterDTO);
-        return ResponseEntity.ok(filtered);
+    @PostMapping("/add")
+    public ResponseEntity<?> addCategory(@RequestBody Category category){
+        Category saved = categoryRepository.save(category);
+        return ResponseEntity.ok(saved);
     }
 
-    @PostMapping("/{categoryId}/filter/computers")
-    public ResponseEntity<?> filterComputers(@PathVariable Long categoryId,
-                                             @RequestBody ComputerDTO filterDTO) {
-        List<Product> filtered = phonesService.filterProducts(categoryId, filterDTO);
-        return ResponseEntity.ok(filtered);
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id){
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        return ResponseEntity.ok("deleted category with id: " + id);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateCategory(@PathVariable Long id,@RequestBody Category updateCategory){
+        categoryService.updateCategory(id,updateCategory);
+        return ResponseEntity.ok(updateCategory);
     }
 
 }
