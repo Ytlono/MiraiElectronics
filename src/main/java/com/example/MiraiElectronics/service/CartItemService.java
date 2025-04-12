@@ -29,6 +29,9 @@ public class CartItemService {
         return cartItemRepository.save(cartItem);
     }
 
+    public void deleteCartItem(Long id){
+        cartItemRepository.deleteById(id);
+    }
     @Transactional
     public void updateCartItem(CartItem cartItem) {
         cartItemRepository.save(cartItem);
