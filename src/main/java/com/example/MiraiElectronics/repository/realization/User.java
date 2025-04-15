@@ -1,5 +1,6 @@
 package com.example.MiraiElectronics.repository.realization;
 
+import com.example.MiraiElectronics.dto.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,5 +34,10 @@ public class User {
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)  // Использование строк для хранения значений enum
+    private Role role;
+
 }
 

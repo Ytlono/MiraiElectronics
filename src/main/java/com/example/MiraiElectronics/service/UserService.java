@@ -3,9 +3,11 @@ package com.example.MiraiElectronics.service;
 import com.example.MiraiElectronics.repository.UserRepository;
 import com.example.MiraiElectronics.repository.realization.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Service
 public class UserService {
     private final UserRepository userRepository;
 
@@ -52,5 +54,10 @@ public class UserService {
             throw new IllegalStateException("No users with such id");
         }
         userRepository.deleteById(id);
+    }
+
+    public boolean isUserExist(String email, String username){
+        return userRepository.findByEmail(email).isPresent()
+                || userRepository.findByUsername(username).isPresent();
     }
 }
