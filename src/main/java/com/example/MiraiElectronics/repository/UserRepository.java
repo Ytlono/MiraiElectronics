@@ -1,5 +1,6 @@
 package com.example.MiraiElectronics.repository;
 
+import com.example.MiraiElectronics.repository.realization.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

@@ -1,9 +1,9 @@
 package com.example.MiraiElectronics.service;
 
-import com.example.MiraiElectronics.repository.Cart;
-import com.example.MiraiElectronics.repository.CartItem;
+import com.example.MiraiElectronics.repository.realization.Cart;
+import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.repository.CartItemRepository;
-import com.example.MiraiElectronics.repository.Product;
+import com.example.MiraiElectronics.repository.realization.Product;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,11 +25,13 @@ public class CartItemService {
         CartItem cartItem = new CartItem();
         cartItem.setProduct(product);
         cartItem.setQuantity(quantity);
-        cartItem.setCart(cart);
         cartItem.setPrice(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
         return cartItemRepository.save(cartItem);
     }
 
+    public void deleteCartItem(Long id){
+        cartItemRepository.deleteById(id);
+    }
     @Transactional
     public void updateCartItem(CartItem cartItem) {
         cartItemRepository.save(cartItem);

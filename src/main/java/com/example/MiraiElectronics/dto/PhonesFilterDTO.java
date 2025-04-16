@@ -1,18 +1,22 @@
 package com.example.MiraiElectronics.dto;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class PhonesFilterDTO implements IFilterDTO{
+public class PhonesFilterDTO implements IFilterDTO {
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
-    private List<Integer> ssdList;
-    private List<Integer> brands;
+
+    private Map<String, Object> additionalFilters = new HashMap<>();
+
+    @JsonAnySetter
+    public void setAdditionalFilter(String key, Object value) {
+        this.additionalFilters.put(key, value);
+    }
 }

@@ -1,29 +1,51 @@
 package com.example.MiraiElectronics.controller;
 
-import com.example.MiraiElectronics.repository.CartItem;
+import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.service.CartItemService;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
-@Controller
+@RestController
+@RequestMapping("/api/cart")
 public class CartItemController {
-    public final CartItemService cartItemService;
+    private final CartItemService cartItemService;
 
     public CartItemController(CartItemService cartItemService) {
         this.cartItemService = cartItemService;
     }
 
-    @PostMapping("/cart/{item_id}/increase")
-    public String increaseProductsInCartItem(@PathVariable("item_id") Long itemId) {
+    @PostMapping("/{item_id}/update-quantity")
+    public ResponseEntity<?> updateQuantity(
+            @PathVariable("item_id") Long itemId,
+            @RequestParam("delta") int delta) {
+
         CartItem cartItem = cartItemService.getById(itemId);
-        cartItem.setQuantity(cartItem.getQuantity() + 1);
-        cartItem.setPrice(cartItem.getProduct().getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+        int newQuantity = cartItem.getQuantity() + delta;
+
+        if (newQuantity <= 0) {
+            return ResponseEntity.badRequest().body("Quantity cannot be less than 1");
+        }
+
+        cartItem.setQuantity(newQuantity);
+        cartItem.setPrice(cartItem.getProduct().getPrice().multiply(BigDecimal.valueOf(newQuantity)));
         cartItemService.updateCartItem(cartItem);
-        return "redirect:/cart";
+        return ResponseEntity.ok(cartItem);
     }
 
+
+
+    @GetMapping("/{item_id}")
+    public ResponseEntity<CartItem> getCartItem(@PathVariable("item_id") Long itemId) {
+        CartItem cartItem = cartItemService.getById(itemId);
+        return ResponseEntity.ok(cartItem);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteCartItem(@PathVariable Long id){
+        cartItemService.deleteCartItem(id);
+        return ResponseEntity.ok("Deleted");
+    }
 
 }
