@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -21,7 +22,7 @@ public class ConfirmationService {
     }
 
     private String generateCode() {
-        return String.valueOf(100000 + new Random().nextInt(900000));
+        return String.valueOf(ThreadLocalRandom.current().nextInt(100000, 1000000));
     }
 
     public void sendConfirmationEmail(String email) {

@@ -1,5 +1,6 @@
 package com.example.MiraiElectronics.service;
 
+import com.example.MiraiElectronics.dto.AuthRequest;
 import com.example.MiraiElectronics.dto.RegisterDTO;
 import com.example.MiraiElectronics.dto.Role;
 import com.example.MiraiElectronics.repository.UserRepository;
@@ -35,7 +36,13 @@ public class AuthService {
         return user;
     }
 
-    public void login(){}
+    public User login(AuthRequest authRequest) {
+        User user = userService.findByUsername(authRequest.getUsername());
 
+        if (user == null || !passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
+            return null;
+        }
 
+        return user;
+    }
 }

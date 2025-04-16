@@ -1,6 +1,8 @@
 package com.example.MiraiElectronics.controller;
 
+import com.example.MiraiElectronics.dto.AuthRequest;
 import com.example.MiraiElectronics.dto.RegisterDTO;
+import com.example.MiraiElectronics.repository.realization.User;
 import com.example.MiraiElectronics.service.AuthService;
 import com.example.MiraiElectronics.service.ConfirmationService;
 import org.springframework.http.ResponseEntity;
@@ -36,13 +38,21 @@ public class AuthController {
     }
 
     @PostMapping("/confirmEmail")
-    public void confirmEmail(){
-
+    public void confirmEmail(@RequestParam String email,@RequestParam String code,@SessionAttribute("pendingUser") RegisterDTO pendingUser){
+        if(!confirmationService.isConfirmed(email,code))
+            return;
+        confirmationService.removeConfirmedEmail(email);
+        authService.register(pendingUser);
     }
 
     @PostMapping("/login")
-    public void login(){
-
+    public ResponseEntity login(@RequestBody AuthRequest authRequest, HttpSession session){
+        User user = authService.login(authRequest);
+        if(user == null){
+            ResponseEntity.ok("Incorrect");
+        }
+        session.setAttribute("pendingUser",user);
+        ResponseEntity.ok(user);
     }
 
     @PostMapping("/logout")
