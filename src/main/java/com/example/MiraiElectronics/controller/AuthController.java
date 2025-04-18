@@ -38,21 +38,22 @@ public class AuthController {
     }
 
     @PostMapping("/confirmEmail")
-    public void confirmEmail(@RequestParam String email,@RequestParam String code,@SessionAttribute("pendingUser") RegisterDTO pendingUser){
+    public ResponseEntity<?> confirmEmail(@RequestParam String email,@RequestParam String code,@SessionAttribute("pendingUser") RegisterDTO pendingUser){
         if(!confirmationService.isConfirmed(email,code))
-            return;
+            return ResponseEntity.ok("discard");
         confirmationService.removeConfirmedEmail(email);
         authService.register(pendingUser);
+        return ResponseEntity.ok(pendingUser);
     }
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody AuthRequest authRequest, HttpSession session){
+    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest, HttpSession session){
         User user = authService.login(authRequest);
         if(user == null){
-            ResponseEntity.ok("Incorrect");
+            return ResponseEntity.ok("Incorrect");
         }
         session.setAttribute("pendingUser",user);
-        ResponseEntity.ok(user);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/logout")

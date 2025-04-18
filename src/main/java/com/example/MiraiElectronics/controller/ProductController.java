@@ -1,6 +1,5 @@
 package com.example.MiraiElectronics.controller;
 
-import com.example.MiraiElectronics.dto.ComputerDTO;
 import com.example.MiraiElectronics.dto.PhonesFilterDTO;
 import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.service.ProductServices.ProductService;

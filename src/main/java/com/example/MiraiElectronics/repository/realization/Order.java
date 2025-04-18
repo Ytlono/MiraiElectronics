@@ -23,7 +23,7 @@ public class Order {
     private Integer orderId;
 
     @Column(name = "customer_id", nullable = false)
-    private Integer customerId;
+    private Long customerId;
 
     @Column(name = "order_date", nullable = false)
     private LocalDate orderDate;

@@ -1,10 +1,7 @@
 package com.example.MiraiElectronics.controller;
 
-import com.example.MiraiElectronics.dto.ComputerDTO;
-import com.example.MiraiElectronics.dto.PhonesFilterDTO;
 import com.example.MiraiElectronics.repository.realization.Category;
 import com.example.MiraiElectronics.repository.CategoryRepository;
-import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.service.CategoryService;
 import com.example.MiraiElectronics.service.ProductServices.ProductService;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +13,10 @@ import java.util.List;
 @RequestMapping("/api/category")
 public class CategoryController {
 
-    private final ProductService productService;
     private final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
 
-    public CategoryController(ProductService productService, CategoryRepository categoryRepository,CategoryService categoryService) {
-        this.productService = productService;
+    public CategoryController(CategoryRepository categoryRepository,CategoryService categoryService) {
         this.categoryRepository = categoryRepository;
         this.categoryService = categoryService;
     }
@@ -60,5 +55,3 @@ public class CategoryController {
     }
 
 }
-
-
