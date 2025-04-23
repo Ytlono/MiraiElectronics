@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class CartItemService {
@@ -19,6 +20,10 @@ public class CartItemService {
 
     public CartItem getById(Long id) {
         return cartItemRepository.findById(id).orElseThrow();
+    }
+
+    public List<CartItem> getAllById(List<Long> ids){
+        return cartItemRepository.findAllById(ids);
     }
 
     public CartItem createCartItem(Product product, int quantity, Cart cart) {

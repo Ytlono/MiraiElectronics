@@ -15,5 +15,5 @@ public class OrderRequest {
     private String status;
     private String shippingAddress;
 
-    private List<OrderItem> items;
+    private List<Long> itemsId;
 }

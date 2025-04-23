@@ -2,6 +2,7 @@ package com.example.MiraiElectronics.service;
 
 import com.example.MiraiElectronics.dto.OrderRequest;
 import com.example.MiraiElectronics.repository.OrderRepository;
+import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.repository.realization.Order;
 import com.example.MiraiElectronics.repository.realization.OrderItem;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,10 +27,10 @@ public class OrderService {
         this.paymentService = paymentService;
     }
 
-    public void makeOrder(OrderRequest orderRequest, HttpServletRequest request){
+    public Order makeOrder(OrderRequest orderRequest, HttpServletRequest request) {
         var user = sessionService.getUserFromSession(request);
-        if(user != null)
-            return;
+        if (user == null)
+            return null;
 
         Order order = Order.builder()
                 .customerId(user.getId())
@@ -36,25 +38,24 @@ public class OrderService {
                 .shippingAddress(orderRequest.getShippingAddress())
                 .orderDate(LocalDate.now())
                 .build();
-        if(!isOrderSuccessful())
-            return;
-        orderRepository.save(order);
-    }
 
-    public BigDecimal countOrderPrice(OrderRequest orderRequest) {
-        BigDecimal totalPrice = BigDecimal.ZERO;
+        List<OrderItem> orderItems = orderItemService.convertCartItemsToOrderItems(orderRequest.getItemsId(), order);
+        order.setOrderItems(orderItems);
 
-        for (OrderItem item : orderRequest.getItems()) {
-            if (item.getTotalPrice() != null) {
-                totalPrice = totalPrice.add(item.getTotalPrice());
-            }
-        }
+        order.setTotalAmount(
+                orderItems.stream()
+                        .map(OrderItem::getTotalPrice)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+        );
 
-        return totalPrice;
+        if (!isOrderSuccessful())
+            return null;
+
+        return orderRepository.save(order);
     }
 
     public boolean isOrderSuccessful(){
-        return true;
+        return paymentService.isPayed();
     }
 
     public Order getOrderById(Long id) {

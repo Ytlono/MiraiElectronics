@@ -7,12 +7,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users", schema = "public") // Переименовал таблицу в соответствии с SQL
+@Table(name = "users", schema = "public")
 public class User {
 
     @Id
@@ -36,8 +38,9 @@ public class User {
     private String password;
 
     @Column(name = "role", nullable = false)
-    @Enumerated(EnumType.STRING)  // Использование строк для хранения значений enum
+    @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(name = "balance", nullable = false, precision = 19, scale = 2)
+    private BigDecimal balance = BigDecimal.ZERO;
 }
-
