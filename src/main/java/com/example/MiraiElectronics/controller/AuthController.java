@@ -6,13 +6,16 @@ import com.example.MiraiElectronics.repository.realization.User;
 import com.example.MiraiElectronics.service.AuthService;
 import com.example.MiraiElectronics.service.ConfirmationService;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.Map;
 
 @RestController
@@ -20,14 +23,14 @@ import java.util.Map;
 @SessionAttributes("pendingUser")
 public class AuthController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
     private final AuthService authService;
     private final ConfirmationService confirmationService;
-    private final AuthenticationManager authenticationManager;
 
-    public AuthController(AuthService authService, ConfirmationService confirmationService, AuthenticationManager authenticationManager) {
+    public AuthController(AuthService authService, ConfirmationService confirmationService) {
         this.authService = authService;
         this.confirmationService = confirmationService;
-        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/register")
@@ -54,26 +57,39 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest, HttpSession session) {
+        logger.info("Login attempt for user: {}", authRequest.getUsername());
+
+        if (authRequest == null || authRequest.getUsername() == null || authRequest.getPassword() == null) {
+            logger.error("Username or password not provided");
+            return ResponseEntity.badRequest().body(Map.of("error", "Username and password must be provided"));
+        }
+
         User user = authService.login(authRequest);
         if (user == null) {
+            logger.error("Invalid username or password for user: {}", authRequest.getUsername());
             return ResponseEntity.status(401).body(Map.of("error", "Invalid username or password"));
         }
 
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword());
-
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                user.getUsername(),
+                null,
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+        );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
+        
+        session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
         session.setAttribute("pendingUser", user);
+
+        logger.info("Login successful for user: {}", authRequest.getUsername());
+        logger.info("Session ID: {}", session.getId());
 
         return ResponseEntity.ok(Map.of(
                 "message", "Login successful",
-                "user", user
+                "user", user,
+                "sessionId", session.getId()
         ));
     }
-
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
