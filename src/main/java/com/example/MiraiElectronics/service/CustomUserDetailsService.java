@@ -1,7 +1,8 @@
-package com.springtest.Demo.service;
+package com.example.MiraiElectronics.service;
 
-import com.springtest.Demo.repository.User;
-import com.springtest.Demo.repository.UserRepository;
+
+import com.example.MiraiElectronics.repository.UserRepository;
+import com.example.MiraiElectronics.repository.realization.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
