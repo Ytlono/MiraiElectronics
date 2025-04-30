@@ -1,5 +1,6 @@
 package com.example.MiraiElectronics.repository.realization;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,6 +42,7 @@ public class Order {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id")
+    @JsonManagedReference
     private List<OrderItem> orderItems = new ArrayList<>();
 
 }

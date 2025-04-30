@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class SessionService {
 
     private final UserService userService;
-    private static final String USER_SESSION_ATTRIBUTE = "currentUser";
+    private static final String USER_SESSION_ATTRIBUTE = "pendingUser";
 
     public SessionService(UserService userService) {
         this.userService = userService;

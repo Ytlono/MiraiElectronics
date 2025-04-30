@@ -6,6 +6,7 @@ import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.repository.realization.Order;
 import com.example.MiraiElectronics.repository.realization.OrderItem;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,10 +28,10 @@ public class OrderService {
         this.paymentService = paymentService;
     }
 
-    public Order makeOrder(OrderRequest orderRequest, HttpServletRequest request) {
+    public ResponseEntity<?> makeOrder(OrderRequest orderRequest, HttpServletRequest request) {
         var user = sessionService.getUserFromSession(request);
         if (user == null)
-            return null;
+            return ResponseEntity.ok("user null");
 
         Order order = Order.builder()
                 .customerId(user.getId())
@@ -49,9 +50,9 @@ public class OrderService {
         );
 
         if (!isOrderSuccessful())
-            return null;
+            return ResponseEntity.ok("null");
 
-        return orderRepository.save(order);
+        return  ResponseEntity.ok(orderRepository.save(order));
     }
 
     public boolean isOrderSuccessful(){

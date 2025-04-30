@@ -25,7 +25,7 @@ public class OrderController {
 
     @PostMapping("/make_order")
     public ResponseEntity<?> makeOrder(@RequestBody OrderRequest orderRequest, HttpServletRequest request) {
-        Order order = orderService.makeOrder(orderRequest, request);
+        var order = orderService.makeOrder(orderRequest, request);
         return ResponseEntity.ok(order);
     }
 
