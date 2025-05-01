@@ -1,6 +1,6 @@
 package com.example.MiraiElectronics.service;
 
-import com.example.MiraiElectronics.dto.Role;
+import com.example.MiraiElectronics.repository.repositoryEnum.Role;
 import com.example.MiraiElectronics.dto.UserSessionDTO;
 import com.example.MiraiElectronics.repository.realization.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,6 +35,7 @@ public class SessionService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(Role.USER)
+                .address(user.getAddress())
                 .build();
         session.setAttribute(USER_SESSION_ATTRIBUTE, userSessionDTO);
     }

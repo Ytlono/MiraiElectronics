@@ -1,4 +1,4 @@
-package com.example.MiraiElectronics.dto;
+package com.example.MiraiElectronics.repository.repositoryEnum;
 
 public enum Role {
     USER, ADMIN

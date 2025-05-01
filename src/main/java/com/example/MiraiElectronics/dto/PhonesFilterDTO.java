@@ -5,11 +5,10 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Data
-public class PhonesFilterDTO implements IFilterDTO {
+public class PhonesFilterDTO {
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
 

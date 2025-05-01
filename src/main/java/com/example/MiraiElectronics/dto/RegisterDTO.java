@@ -1,5 +1,6 @@
 package com.example.MiraiElectronics.dto;
 
+import com.example.MiraiElectronics.repository.repositoryEnum.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

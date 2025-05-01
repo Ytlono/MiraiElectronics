@@ -2,10 +2,8 @@ package com.example.MiraiElectronics.service;
 
 import com.example.MiraiElectronics.dto.AuthRequest;
 import com.example.MiraiElectronics.dto.RegisterDTO;
-import com.example.MiraiElectronics.dto.Role;
-import com.example.MiraiElectronics.repository.UserRepository;
+import com.example.MiraiElectronics.repository.repositoryEnum.Role;
 import com.example.MiraiElectronics.repository.realization.User;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

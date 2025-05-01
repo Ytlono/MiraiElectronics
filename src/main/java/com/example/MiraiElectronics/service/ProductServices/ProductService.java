@@ -1,6 +1,5 @@
 package com.example.MiraiElectronics.service.ProductServices;
 
-import com.example.MiraiElectronics.dto.IFilterDTO;
 import com.example.MiraiElectronics.dto.PhonesFilterDTO;
 import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.repository.ProductRepository;

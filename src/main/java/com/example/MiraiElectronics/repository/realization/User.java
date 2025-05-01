@@ -1,6 +1,6 @@
 package com.example.MiraiElectronics.repository.realization;
 
-import com.example.MiraiElectronics.dto.Role;
+import com.example.MiraiElectronics.repository.repositoryEnum.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

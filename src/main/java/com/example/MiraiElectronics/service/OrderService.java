@@ -31,12 +31,14 @@ public class OrderService {
     public ResponseEntity<?> makeOrder(OrderRequest orderRequest, HttpServletRequest request) {
         var user = sessionService.getUserFromSession(request);
         if (user == null)
-            return ResponseEntity.ok("user null");
+            return ResponseEntity.ok("User not found");
+
+        String shippingAddress = user.getAddress()!= null ? user.getAddress() : orderRequest.getShippingAddress();
 
         Order order = Order.builder()
                 .customerId(user.getId())
                 .status(orderRequest.getStatus())
-                .shippingAddress(orderRequest.getShippingAddress())
+                .shippingAddress(shippingAddress)
                 .orderDate(LocalDate.now())
                 .build();
 
@@ -50,10 +52,11 @@ public class OrderService {
         );
 
         if (!isOrderSuccessful())
-            return ResponseEntity.ok("null");
+            return ResponseEntity.ok("Payment failed");
 
-        return  ResponseEntity.ok(orderRepository.save(order));
+        return ResponseEntity.ok(orderRepository.save(order));
     }
+
 
     public boolean isOrderSuccessful(){
         return paymentService.isPayed();
