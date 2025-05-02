@@ -1,6 +1,6 @@
 package com.example.MiraiElectronics.service.ProductServices;
 
-import com.example.MiraiElectronics.dto.PhonesFilterDTO;
+import com.example.MiraiElectronics.dto.FilterDTO;
 import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.repository.ProductRepository;
 import com.example.MiraiElectronics.service.FilterServices.FilterService;
@@ -94,8 +94,8 @@ public class ProductService {
         return new ArrayList<>(productSet);
     }
 
-    public List<Product> filterProducts(Long categoryId, IFilterDTO filterDTO) {
-        PhonesFilterDTO phonesFilterDTO = (PhonesFilterDTO) filterDTO;
+    public List<Product> filterProducts(Long categoryId, FilterDTO filterDTO) {
+        FilterDTO phonesFilterDTO = (FilterDTO) filterDTO;
 
         Specification<Product> spec = Specification.where(FilterService.hasCategory(categoryId));
 

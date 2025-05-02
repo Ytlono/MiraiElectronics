@@ -26,6 +26,7 @@ public class CartItemService {
         return cartItemRepository.findAllById(ids);
     }
 
+    @Transactional
     public CartItem createCartItem(Product product, int quantity, Cart cart) {
         CartItem cartItem = new CartItem();
         cartItem.setProduct(product);
@@ -34,11 +35,42 @@ public class CartItemService {
         return cartItemRepository.save(cartItem);
     }
 
+    @Transactional
     public void deleteCartItem(Long id){
         cartItemRepository.deleteById(id);
     }
+    
     @Transactional
     public void updateCartItem(CartItem cartItem) {
         cartItemRepository.save(cartItem);
+    }
+    
+    @Transactional
+    public void removeItem(Long itemId, Long userId) {
+        CartItem cartItem = getById(itemId);
+        deleteCartItem(itemId);
+
+//        if (cartItem.getCart().getCartId().equals(userId)) {
+//
+//        } else {
+//            throw new IllegalArgumentException("Товар не принадлежит корзине пользователя");
+//        }
+    }
+    
+    @Transactional
+    public void updateQuantity(Long itemId, int quantity, Long userId) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Количество товара должно быть больше 0");
+        }
+        CartItem cartItem = getById(itemId);
+        cartItem.setQuantity(quantity);
+        cartItem.setPrice(cartItem.getProduct().getPrice().multiply(BigDecimal.valueOf(quantity)));
+        updateCartItem(cartItem);
+
+//        if (cartItem.getCart().getCartId().equals(userId)) {
+//
+//        } else {
+//            throw new IllegalArgumentException("Товар не принадлежит корзине пользователя");
+//        }
     }
 }

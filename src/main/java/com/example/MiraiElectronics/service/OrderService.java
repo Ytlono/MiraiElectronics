@@ -1,6 +1,7 @@
 package com.example.MiraiElectronics.service;
 
 import com.example.MiraiElectronics.dto.OrderRequest;
+import com.example.MiraiElectronics.dto.UserSessionDTO;
 import com.example.MiraiElectronics.repository.OrderRepository;
 import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.repository.realization.Order;
@@ -8,6 +9,7 @@ import com.example.MiraiElectronics.repository.realization.OrderItem;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -28,6 +30,7 @@ public class OrderService {
         this.paymentService = paymentService;
     }
 
+    @Transactional
     public ResponseEntity<?> makeOrder(OrderRequest orderRequest, HttpServletRequest request) {
         var user = sessionService.getUserFromSession(request);
         if (user == null)
@@ -66,15 +69,22 @@ public class OrderService {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + id));
     }
+    
+    public Order getOrderByIdAndUserId(Long orderId, Long userId) {
+        return orderRepository.findById(orderId)
+                .filter(order -> order.getCustomerId().equals(userId))
+                .orElse(null);
+    }
 
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
 
-    public List<Order> getOrdersByCustomerId(Long customerId) {
-        return orderRepository.findAllByCustomerId(customerId);
+    public List<Order> getUserOrders(Long userId) {
+        return orderRepository.findAllByCustomerId(userId);
     }
 
+    @Transactional
     public void deleteOrderById(Long id) {
         if (!orderRepository.existsById(id)) {
             throw new IllegalArgumentException("Order not found with id: " + id);
@@ -82,12 +92,31 @@ public class OrderService {
         orderRepository.deleteById(id);
     }
 
+    @Transactional
+    public boolean cancelOrder(Long orderId, Long userId) {
+        Order order = getOrderByIdAndUserId(orderId, userId);
+        if (order == null) {
+            return false;
+        }
+        
+        // Можно отменить только заказы в определенных статусах
+        if (order.getStatus().equals("PROCESSING") || order.getStatus().equals("PENDING")) {
+            order.setStatus("CANCELLED");
+            orderRepository.save(order);
+            return true;
+        } else {
+            throw new IllegalStateException("Невозможно отменить заказ в текущем статусе: " + order.getStatus());
+        }
+    }
+
+    @Transactional
     public void updateShippingAddress(Long orderId, String newAddress) {
         Order order = getOrderById(orderId);
         order.setShippingAddress(newAddress);
         orderRepository.save(order);
     }
 
+    @Transactional
     public void updateOrderStatus(Long id, String status) {
         Order order = getOrderById(id);
         order.setStatus(status);

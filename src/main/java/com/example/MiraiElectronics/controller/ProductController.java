@@ -1,6 +1,6 @@
 package com.example.MiraiElectronics.controller;
 
-import com.example.MiraiElectronics.dto.PhonesFilterDTO;
+import com.example.MiraiElectronics.dto.FilterDTO;
 import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.service.ProductServices.ProductService;
 import com.example.MiraiElectronics.service.CategoryService;
@@ -41,7 +41,7 @@ public class ProductController {
 
     @PostMapping("/category/{categoryId}/filter")
     public ResponseEntity<?> filterProducts(@PathVariable Long categoryId,
-                                          @RequestBody PhonesFilterDTO filterDTO) {
+                                          @RequestBody FilterDTO filterDTO) {
         List<Product> filtered = productService.filterProducts(categoryId, filterDTO);
         return ResponseEntity.ok(filtered);
     }

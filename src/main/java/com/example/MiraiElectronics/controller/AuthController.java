@@ -8,6 +8,7 @@ import com.example.MiraiElectronics.service.ConfirmationService;
 import com.example.MiraiElectronics.service.SessionService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterDTO registerRequest, HttpSession session) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterDTO registerRequest, HttpSession session) {
         if (registerRequest.getPassword() == null || registerRequest.getPassword().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Пароль не может быть пустым"));
         }
@@ -61,7 +62,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest, HttpSession session, HttpServletRequest request)
+    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest authRequest, HttpSession session, HttpServletRequest request)
     {
         logger.info("Login attempt for user: {}", authRequest.getUsername());
 

@@ -1,38 +1,76 @@
 package com.example.MiraiElectronics.controller;
 
+import com.example.MiraiElectronics.dto.UserSessionDTO;
+import com.example.MiraiElectronics.repository.realization.Cart;
 import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.service.CartItemService;
 import com.example.MiraiElectronics.service.CartService;
 import com.example.MiraiElectronics.service.ProductServices.ProductService;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.MiraiElectronics.service.SessionService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
+@RequestMapping("/api/cart")
 public class CartController {
     private final CartService cartService;
     private final ProductService productService;
     private final CartItemService cartItemService;
+    private final SessionService sessionService;
 
-    public CartController(CartService cartService, ProductService productService, CartItemService cartItemService) {
+    public CartController(CartService cartService, ProductService productService, CartItemService cartItemService, SessionService sessionService) {
         this.cartService = cartService;
         this.productService = productService;
         this.cartItemService = cartItemService;
+        this.sessionService = sessionService;
     }
 
-
-    @GetMapping("/cart")
-    public String cart(Model model){
-        model.addAttribute("cart",cartService.getCart(1L));
-        return "cart";
+    @GetMapping
+    public ResponseEntity<?> getCart(HttpServletRequest request) {
+        UserSessionDTO user = sessionService.getUserFromSession(request);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
+        }
+        
+        Cart cart = cartService.getCart(user.getId());
+        return ResponseEntity.ok(cart);
     }
 
-    @PostMapping("/cart/addToCart/{productId}")
-    public String addToCart(@PathVariable Long productId) {
+    @PostMapping("/items/{productId}")
+    public ResponseEntity<?> addToCart(@PathVariable Long productId, @RequestParam(defaultValue = "1") int quantity, HttpServletRequest request) {
+        UserSessionDTO user = sessionService.getUserFromSession(request);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
+        }
+        
         Product product = productService.findById(productId);
-        cartService.addItem(product, 1, 1L); // Добавляем сразу через сервис
-        return "redirect:/cart";
+        cartService.addItem(product, quantity, user.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Товар добавлен в корзину"));
+    }
+    
+    @DeleteMapping("/items/{itemId}")
+    public ResponseEntity<?> removeFromCart(@PathVariable Long itemId, HttpServletRequest request) {
+        UserSessionDTO user = sessionService.getUserFromSession(request);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
+        }
+        
+        cartItemService.removeItem(itemId, user.getId());
+        return ResponseEntity.ok(Map.of("message", "Товар удален из корзины"));
+    }
+    
+    @PutMapping("/items/{itemId}")
+    public ResponseEntity<?> updateCartItemQuantity(@PathVariable Long itemId, @RequestParam int quantity, HttpServletRequest request) {
+        UserSessionDTO user = sessionService.getUserFromSession(request);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
+        }
+        
+        cartItemService.updateQuantity(itemId, quantity, user.getId());
+        return ResponseEntity.ok(Map.of("message", "Количество товара обновлено"));
     }
 }
