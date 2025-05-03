@@ -1,4 +1,4 @@
-package com.example.MiraiElectronics.controller;
+package com.example.MiraiElectronics.controller.valid;
 
 import com.example.MiraiElectronics.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -11,11 +11,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
-public class UserCheckController {
+public class UserValidController {
 
     private final UserService userService;
 
-    public UserCheckController(UserService userService) {
+    public UserValidController(UserService userService) {
         this.userService = userService;
     }
 
