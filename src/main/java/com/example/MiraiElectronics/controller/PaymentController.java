@@ -3,35 +3,38 @@ package com.example.MiraiElectronics.controller;
 import com.example.MiraiElectronics.dto.CardDTO;
 import com.example.MiraiElectronics.repository.realization.User;
 import com.example.MiraiElectronics.service.CardService;
+import com.example.MiraiElectronics.service.PaymentService;
 import com.example.MiraiElectronics.service.SessionService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/payment")
 public class PaymentController {
     private final CardService cardService;
     private final SessionService sessionService;
+    private final PaymentService paymentService;
 
-    public PaymentController(CardService cardService, SessionService sessionService) {
+    public PaymentController(CardService cardService, SessionService sessionService, PaymentService paymentService) {
         this.cardService = cardService;
         this.sessionService = sessionService;
+        this.paymentService = paymentService;
     }
 
     @PostMapping("/top-up")
-    public ResponseEntity<?> topUpBalance(){
-        return ResponseEntity.ok(1);
-    }
-
-    @GetMapping("/balance")
-    public ResponseEntity<?> getUserBalance(){
-        return ResponseEntity.ok(1);
-    }
-
-    @PostMapping("/order/{orderId}")
-    public ResponseEntity<?> payForOrder(@PathVariable Long orderId){
-        return ResponseEntity.ok(1);
+    public ResponseEntity<?> topUpBalance(@RequestParam Long cardId,
+                                          @RequestParam BigDecimal sum,
+                                          HttpServletRequest request) {
+        User user = sessionService.getFullUserFromSession(request);
+        try {
+            BigDecimal newBalance = paymentService.topUpUserBalanceFromCard(cardId, sum, user);
+            return ResponseEntity.ok("Balance topped up successfully. New balance: " + newBalance);
+        } catch (IllegalArgumentException | SecurityException e) {
+            return ResponseEntity.badRequest().body("Top-up failed: " + e.getMessage());
+        }
     }
 
     @GetMapping("/history")
@@ -49,10 +52,4 @@ public class PaymentController {
         User user = sessionService.getFullUserFromSession(request);
         return ResponseEntity.ok(cardService.addCard(cardDTO,user));
     }
-
-    @GetMapping("/status/{paymentId}")
-    public ResponseEntity<?> getPaymentStatus(@PathVariable String paymentId){
-        return ResponseEntity.ok(1);
-    }
-
 }

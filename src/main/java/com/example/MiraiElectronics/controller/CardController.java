@@ -20,16 +20,17 @@ public class CardController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCard(@PathVariable Long id, HttpServletRequest request) {
-        User user = sessionService.getFullUserFromSession(request);
-        return cardService.deleteCard(id, user);
+        return ResponseEntity.ok(
+                cardService.deleteCard(id, sessionService.
+                        getFullUserFromSession(request))
+        );
     }
 
     @GetMapping
     public ResponseEntity<?> getAllUserCards(HttpServletRequest request){
-        User user = sessionService.getFullUserFromSession(request);
-
-        return ResponseEntity.ok(1);
+        return ResponseEntity.ok(
+                cardService.getAllUserCards(sessionService.
+                        getFullUserFromSession(request))
+        );
     }
-
-
 }

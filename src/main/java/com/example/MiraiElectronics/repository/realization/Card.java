@@ -22,12 +22,16 @@ public class Card {
 
     @Column(name = "masked_card_number",nullable = false)
     private String maskedCardNumber;
+
     @Column(name = "full_card_number_hash",nullable = false)
     private String fullCardNumberHash;
+
     @Column(name = "expiry_date",nullable = false)
     private String expiryDate;
+
     @Column(name = "cvv_hash", nullable = false)
     private String cvvHash;
+
     @Column(name = "balance", nullable = false)
     private BigDecimal balance;
 

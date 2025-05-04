@@ -36,7 +36,7 @@ public class CardService {
                 .balance(cardDTO.getBalance() != null ? cardDTO.getBalance() : BigDecimal.ZERO)
                 .user(user)
                 .build();
-        System.out.println("Saving card: " + card);
+
         cardRepository.save(card);
         return ResponseEntity.ok(card);
     }
@@ -49,20 +49,19 @@ public class CardService {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new IllegalStateException("No card with id " + cardId));
 
-        if (!card.getUser().getUserId().equals(currentUser.getUserId())) {
-            throw new SecurityException("Access denied: this card doesn't belong to the current user.");
-        }
+        validateCardOwnership(card, currentUser);
 
         cardRepository.delete(card);
         return ResponseEntity.ok("Card deleted");
     }
 
-
-    public ResponseEntity<?> withdrawFromCard(Long id, BigDecimal sum) {
+    public ResponseEntity<?> withdrawFromCard(Long id, BigDecimal sum, User currentUser) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("No card with id " + id));
 
-        if (checkBalance(sum,card)) {
+        validateCardOwnership(card, currentUser);
+
+        if (hasSufficientBalance(sum, card)) {
             return ResponseEntity.badRequest().body("Insufficient funds");
         }
 
@@ -82,12 +81,22 @@ public class CardService {
         }
 
         if(!cardParserService.isValidExpiryDate(cardDTO.getExpiryDate())){
-            throw new IllegalArgumentException("Incorrect card expireDate format");
+            throw new IllegalArgumentException("Incorrect card expiry date format");
         }
+
         return ResponseEntity.ok(cardDTO);
     }
 
-    public boolean checkBalance(BigDecimal sum, Card card) {
+    public Card getCardById(Long id) {
+        return cardRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("No card with id " + id));
+    }
+
+    public void saveCard(Card card) {
+        cardRepository.save(card);
+    }
+
+    public boolean hasSufficientBalance(BigDecimal sum, Card card) {
         if (sum.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Sum must be greater than zero");
         }
@@ -95,4 +104,9 @@ public class CardService {
         return card.getBalance().compareTo(sum) >= 0;
     }
 
+    public void validateCardOwnership(Card card, User user) {
+        if (!card.getUser().getUserId().equals(user.getUserId())) {
+            throw new SecurityException("Access denied: this card doesn't belong to the current user.");
+        }
+    }
 }

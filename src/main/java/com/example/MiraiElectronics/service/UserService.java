@@ -23,6 +23,11 @@ public class UserService implements UserDetailsService {
         this.parserService = userParserService;
     }
 
+    @Transactional
+    public void saveUser(User user){
+        userRepository.save(user);
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
