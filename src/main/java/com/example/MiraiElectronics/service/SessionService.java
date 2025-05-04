@@ -5,6 +5,7 @@ import com.example.MiraiElectronics.dto.UserSessionDTO;
 import com.example.MiraiElectronics.repository.realization.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,9 @@ public class SessionService {
         return (UserSessionDTO) session.getAttribute(USER_SESSION_ATTRIBUTE);
     }
 
+    public User getFullUserFromSession(HttpServletRequest request) {
+        return userService.findById(getUserFromSession(request).getId());
+    }
 
     public void removeUserFromSession(HttpServletRequest request) {
         HttpSession session = request.getSession(false);

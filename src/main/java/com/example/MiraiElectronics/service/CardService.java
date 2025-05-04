@@ -1,35 +1,62 @@
 package com.example.MiraiElectronics.service;
 
-import com.example.MiraiElectronics.repository.ICardRepository;
+import com.example.MiraiElectronics.dto.CardDTO;
+import com.example.MiraiElectronics.repository.CardRepository;
 import com.example.MiraiElectronics.repository.realization.Card;
-import com.example.MiraiElectronics.repository.realization.Cart;
+import com.example.MiraiElectronics.repository.realization.User;
+import com.example.MiraiElectronics.service.Parser.CardParserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class CardService {
-    public final ICardRepository cardRepository;
+    private final CardRepository cardRepository;
+    private final CardParserService cardParserService;
 
-    public CardService(ICardRepository cardRepository) {
+    public CardService(CardRepository cardRepository, CardParserService cardParserService) {
         this.cardRepository = cardRepository;
+        this.cardParserService = cardParserService;
     }
 
-    public ResponseEntity<?> addCart(){
-        Card card = Card.builder().build();
+    public ResponseEntity<?> addCard(CardDTO cardDTO, User user) {
+        validCard(cardDTO);
+
+        String maskedNumber = cardParserService.maskCardNumber(cardDTO.getFullCardNumber());
+        String cardHash = String.valueOf(cardDTO.getFullCardNumber().hashCode());
+        String cvvHash = String.valueOf(cardDTO.getCvv().hashCode());
+
+        Card card = Card.builder()
+                .maskedCardNumber(maskedNumber)
+                .fullCardNumberHash(cardHash)
+                .cvvHash(cvvHash)
+                .expiryDate(cardDTO.getExpiryDate())
+                .balance(cardDTO.getBalance() != null ? cardDTO.getBalance() : BigDecimal.ZERO)
+                .user(user)
+                .build();
+        System.out.println("Saving card: " + card);
         cardRepository.save(card);
         return ResponseEntity.ok(card);
     }
 
-    public ResponseEntity<?> deleteCart(Long id) {
-        cardRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("No card with id " + id));
-
-        cardRepository.deleteById(id);
-        return ResponseEntity.ok("deleted");
+    public List<Card> getAllUserCards(User user){
+        return cardRepository.getAllUserCards(user);
     }
+
+    public ResponseEntity<?> deleteCard(Long cardId, User currentUser) {
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalStateException("No card with id " + cardId));
+
+        if (!card.getUser().getUserId().equals(currentUser.getUserId())) {
+            throw new SecurityException("Access denied: this card doesn't belong to the current user.");
+        }
+
+        cardRepository.delete(card);
+        return ResponseEntity.ok("Card deleted");
+    }
+
 
     public ResponseEntity<?> withdrawFromCard(Long id, BigDecimal sum) {
         Card card = cardRepository.findById(id)
@@ -45,9 +72,19 @@ public class CardService {
         return ResponseEntity.ok("Withdrawal successful. New balance: " + card.getBalance());
     }
 
-    public ResponseEntity<?> validCard(Card card){
+    public ResponseEntity<?> validCard(CardDTO cardDTO){
+        if(!cardParserService.isValidCardNumber(cardDTO.getFullCardNumber())){
+            throw new IllegalArgumentException("Incorrect card number format");
+        }
 
-        return ResponseEntity.ok(card);
+        if (!cardParserService.isValidCVV(cardDTO.getCvv())){
+            throw new IllegalArgumentException("Incorrect card cvv format");
+        }
+
+        if(!cardParserService.isValidExpiryDate(cardDTO.getExpiryDate())){
+            throw new IllegalArgumentException("Incorrect card expireDate format");
+        }
+        return ResponseEntity.ok(cardDTO);
     }
 
     public boolean checkBalance(BigDecimal sum, Card card) {
