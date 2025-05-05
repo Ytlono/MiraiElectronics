@@ -3,6 +3,7 @@ package com.example.MiraiElectronics.controller;
 import com.example.MiraiElectronics.dto.OrderRequest;
 import com.example.MiraiElectronics.dto.UserSessionDTO;
 import com.example.MiraiElectronics.repository.realization.Order;
+import com.example.MiraiElectronics.repository.realization.User;
 import com.example.MiraiElectronics.service.OrderItemService;
 import com.example.MiraiElectronics.service.OrderService;
 import com.example.MiraiElectronics.service.SessionService;
@@ -31,22 +32,16 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<?> getUserOrders(HttpServletRequest request) {
         UserSessionDTO user = sessionService.getUserFromSession(request);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
-        }
-        
+
         List<Order> orders = orderService.getUserOrders(user.getId());
         return ResponseEntity.ok(orders);
     }
     
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrderById(@PathVariable Long orderId, HttpServletRequest request) {
-        UserSessionDTO user = sessionService.getUserFromSession(request);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
-        }
-        
-        Order order = orderService.getOrderByIdAndUserId(orderId, user.getId());
+        User user = sessionService.getFullUserFromSession(request);
+
+        Order order = orderService.getOrderByIdAndUserId(orderId, user);
         if (order == null) {
             return ResponseEntity.notFound().build();
         }
@@ -56,25 +51,13 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<?> createOrder(@Valid @RequestBody OrderRequest orderRequest, HttpServletRequest request) {
         UserSessionDTO user = sessionService.getUserFromSession(request);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
-        }
-        
         ResponseEntity<?> order = orderService.makeOrder(orderRequest, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
     
     @DeleteMapping("/{orderId}")
     public ResponseEntity<?> cancelOrder(@PathVariable Long orderId, HttpServletRequest request) {
-        UserSessionDTO user = sessionService.getUserFromSession(request);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
-        }
-        
-        boolean canceled = orderService.cancelOrder(orderId, user.getId());
-        if (!canceled) {
-            return ResponseEntity.notFound().build();
-        }
+        orderService.cancelOrder(orderId, sessionService.getFullUserFromSession(request));
         return ResponseEntity.ok(Map.of("message", "Заказ отменен"));
     }
 }

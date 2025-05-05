@@ -6,6 +6,8 @@ import com.example.MiraiElectronics.repository.OrderRepository;
 import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.repository.realization.Order;
 import com.example.MiraiElectronics.repository.realization.OrderItem;
+import com.example.MiraiElectronics.repository.realization.User;
+import com.example.MiraiElectronics.repository.repositoryEnum.TransactionType;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,24 +24,27 @@ public class OrderService {
     private final OrderItemService orderItemService;
     private final SessionService sessionService;
     private final PaymentService paymentService;
+    private final TransactionService transactionService;
 
-    public OrderService(OrderRepository orderRepository, OrderItemService orderItemService, SessionService sessionService, PaymentService paymentService) {
+    public OrderService(OrderRepository orderRepository, OrderItemService orderItemService, SessionService sessionService, PaymentService paymentService, TransactionService transactionService) {
         this.orderRepository = orderRepository;
         this.orderItemService = orderItemService;
         this.sessionService = sessionService;
         this.paymentService = paymentService;
+        this.transactionService = transactionService;
     }
+
 
     @Transactional
     public ResponseEntity<?> makeOrder(OrderRequest orderRequest, HttpServletRequest request) {
-        var user = sessionService.getUserFromSession(request);
+        var user = sessionService.getFullUserFromSession(request);
         if (user == null)
             return ResponseEntity.ok("User not found");
 
         String shippingAddress = user.getAddress()!= null ? user.getAddress() : orderRequest.getShippingAddress();
 
         Order order = Order.builder()
-                .customerId(user.getId())
+                .user(user)
                 .status(orderRequest.getStatus())
                 .shippingAddress(shippingAddress)
                 .orderDate(LocalDate.now())
@@ -57,6 +62,13 @@ public class OrderService {
         if (!isOrderSuccessful())
             return ResponseEntity.ok("Payment failed");
 
+        transactionService.createTransaction(
+                user,
+                order.getTotalAmount(),
+                "Payment for order #" + order.getOrderId(),
+                TransactionType.PURCHASE
+        );
+
         return ResponseEntity.ok(orderRepository.save(order));
     }
 
@@ -70,9 +82,9 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + id));
     }
     
-    public Order getOrderByIdAndUserId(Long orderId, Long userId) {
+    public Order getOrderByIdAndUserId(Long orderId, User user) {
         return orderRepository.findById(orderId)
-                .filter(order -> order.getCustomerId().equals(userId))
+                .filter(order -> order.getUser().equals(user))
                 .orElse(null);
     }
 
@@ -93,20 +105,25 @@ public class OrderService {
     }
 
     @Transactional
-    public boolean cancelOrder(Long orderId, Long userId) {
-        Order order = getOrderByIdAndUserId(orderId, userId);
-        if (order == null) {
-            return false;
-        }
-        
-        // Можно отменить только заказы в определенных статусах
-        if (order.getStatus().equals("PROCESSING") || order.getStatus().equals("PENDING")) {
-            order.setStatus("CANCELLED");
-            orderRepository.save(order);
-            return true;
-        } else {
+    public void cancelOrder(Long orderId, User user) {
+        Order order = getOrderByIdAndUserId(orderId, user);
+        if (order == null)
+            throw new IllegalStateException("Order doesn't exist");
+
+        if (!order.getStatus().equals("PROCESSING") || order.getStatus().equals("PENDING"))
             throw new IllegalStateException("Невозможно отменить заказ в текущем статусе: " + order.getStatus());
-        }
+
+        order.setStatus("CANCELLED");
+        paymentService.refundToUser(order.getTotalAmount(),order.getUser());
+
+        transactionService.createTransaction(
+                user,
+                order.getTotalAmount(),
+                "Order #" + order.getOrderId() + " refund",
+                TransactionType.REFUND
+        );
+
+        orderRepository.save(order);
     }
 
     @Transactional

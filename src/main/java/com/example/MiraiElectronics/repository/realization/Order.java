@@ -25,8 +25,9 @@ public class Order {
     @Column(name = "order_id")
     private Integer orderId;
 
-    @Column(name = "customer_id", nullable = false)
-    private Long customerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private User user;
 
     @Column(name = "order_date", nullable = false)
     private LocalDate orderDate;
@@ -44,5 +45,4 @@ public class Order {
     @JoinColumn(name = "order_id")
     @JsonManagedReference
     private List<OrderItem> orderItems = new ArrayList<>();
-
 }
