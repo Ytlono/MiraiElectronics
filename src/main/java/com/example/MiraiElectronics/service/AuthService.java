@@ -7,6 +7,8 @@ import com.example.MiraiElectronics.repository.realization.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class AuthService {
     private final UserService userService;
@@ -31,6 +33,7 @@ public class AuthService {
                 .email(registerRequest.getEmail())
                 .username(registerRequest.getUsername())
                 .password(encodedPassword)
+                .balance(BigDecimal.ZERO)
                 .role(Role.USER)
                 .build();
         userService.createUser(user);

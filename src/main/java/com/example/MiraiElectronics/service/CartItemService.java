@@ -4,6 +4,7 @@ import com.example.MiraiElectronics.repository.realization.Cart;
 import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.repository.CartItemRepository;
 import com.example.MiraiElectronics.repository.realization.Product;
+import com.example.MiraiElectronics.repository.realization.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,5 +73,9 @@ public class CartItemService {
 //        } else {
 //            throw new IllegalArgumentException("Товар не принадлежит корзине пользователя");
 //        }
+    }
+
+    private void userCheck(CartItem cartItem, User user){
+
     }
 }

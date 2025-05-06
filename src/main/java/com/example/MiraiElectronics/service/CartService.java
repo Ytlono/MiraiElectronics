@@ -34,9 +34,14 @@ public class CartService {
                 .orElseThrow(() -> new RuntimeException("Cart not found for id: " + id));
     }
 
+    public Cart getCartByUser(User user){
+        return cartRepository.findByUser(user)
+                .orElseThrow();
+    }
+
     @Transactional
-    public void addItem(Product product, int quantity, Long cartId) {
-        Cart cart = getCart(cartId);
+    public void addItem(Product product, int quantity, User user) {
+        Cart cart = getCartByUser(user);
         CartItem cartItem = cartItemService.createCartItem(product, quantity, cart);
         cart.getCartItems().add(cartItem);
         cartRepository.save(cart);

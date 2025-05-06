@@ -3,6 +3,7 @@ package com.example.MiraiElectronics.controller;
 import com.example.MiraiElectronics.dto.UserSessionDTO;
 import com.example.MiraiElectronics.repository.realization.Cart;
 import com.example.MiraiElectronics.repository.realization.Product;
+import com.example.MiraiElectronics.repository.realization.User;
 import com.example.MiraiElectronics.service.CartItemService;
 import com.example.MiraiElectronics.service.CartService;
 import com.example.MiraiElectronics.service.ProductServices.ProductService;
@@ -42,13 +43,13 @@ public class CartController {
 
     @PostMapping("/items/{productId}")
     public ResponseEntity<?> addToCart(@PathVariable Long productId, @RequestParam(defaultValue = "1") int quantity, HttpServletRequest request) {
-        UserSessionDTO user = sessionService.getUserFromSession(request);
+        User user = sessionService.getFullUserFromSession(request);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
         }
         
         Product product = productService.findById(productId);
-        cartService.addItem(product, quantity, user.getId());
+        cartService.addItem(product, quantity, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Товар добавлен в корзину"));
     }
     

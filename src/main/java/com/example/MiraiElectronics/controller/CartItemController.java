@@ -2,6 +2,8 @@ package com.example.MiraiElectronics.controller;
 
 import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.service.CartItemService;
+import com.example.MiraiElectronics.service.SessionService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,15 +13,17 @@ import java.math.BigDecimal;
 @RequestMapping("/api/cart")
 public class CartItemController {
     private final CartItemService cartItemService;
+    private final SessionService sessionService;
 
-    public CartItemController(CartItemService cartItemService) {
+    public CartItemController(CartItemService cartItemService, SessionService sessionService) {
         this.cartItemService = cartItemService;
+        this.sessionService = sessionService;
     }
 
-    @PostMapping("/{item_id}/update-quantity")
+    @PostMapping("/update-quantity")
     public ResponseEntity<?> updateQuantity(
-            @PathVariable("item_id") Long itemId,
-            @RequestParam("delta") int delta) {
+            @RequestParam Long itemId,
+            @RequestParam(defaultValue = "1") int delta, HttpServletRequest request) {
 
         CartItem cartItem = cartItemService.getById(itemId);
         int newQuantity = cartItem.getQuantity() + delta;
@@ -36,14 +40,14 @@ public class CartItemController {
 
 
 
-    @GetMapping("/{item_id}")
-    public ResponseEntity<CartItem> getCartItem(@PathVariable("item_id") Long itemId) {
+    @GetMapping("/item")
+    public ResponseEntity<CartItem> getCartItem(@RequestParam Long itemId) {
         CartItem cartItem = cartItemService.getById(itemId);
         return ResponseEntity.ok(cartItem);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteCartItem(@PathVariable Long id){
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteCartItem(@RequestParam Long id){
         cartItemService.deleteCartItem(id);
         return ResponseEntity.ok("Deleted");
     }
