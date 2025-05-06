@@ -11,11 +11,14 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final CartService cartService;
 
-    public AuthService(UserService userRepository, PasswordEncoder passwordEncoder) {
-        this.userService = userRepository;
+    public AuthService(UserService userService, PasswordEncoder passwordEncoder, CartService cartService) {
+        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.cartService = cartService;
     }
+
 
     public User register(RegisterDTO registerRequest){
         if (userService.isUserExist(registerRequest.getEmail(),registerRequest.getUsername())) {
@@ -31,6 +34,7 @@ public class AuthService {
                 .role(Role.USER)
                 .build();
         userService.createUser(user);
+        cartService.createCart(user);
         return user;
     }
 

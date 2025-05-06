@@ -1,5 +1,6 @@
 package com.example.MiraiElectronics.controller;
 
+import com.example.MiraiElectronics.dto.CardDTO;
 import com.example.MiraiElectronics.repository.realization.User;
 import com.example.MiraiElectronics.service.CardService;
 import com.example.MiraiElectronics.service.SessionService;
@@ -16,6 +17,12 @@ public class CardController {
     public CardController(SessionService sessionService, CardService cardService) {
         this.sessionService = sessionService;
         this.cardService = cardService;
+    }
+
+    @PostMapping("/addCard")
+    public ResponseEntity<?> addPaymentMethod(@RequestBody CardDTO cardDTO, HttpServletRequest request) {
+        User user = sessionService.getFullUserFromSession(request);
+        return ResponseEntity.ok(cardService.addCard(cardDTO,user));
     }
 
     @DeleteMapping("/{id}")

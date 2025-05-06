@@ -92,8 +92,8 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
-    public List<Order> getUserOrders(Long userId) {
-        return orderRepository.findAllByCustomerId(userId);
+    public List<Order> getUserOrders(User user) {
+        return orderRepository.findAllByCustomerId(user);
     }
 
     @Transactional

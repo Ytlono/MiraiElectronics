@@ -20,20 +20,16 @@ import java.util.Map;
 @RequestMapping("/api/orders")
 public class OrderController {
     private final OrderService orderService;
-    private final OrderItemService orderItemService;
     private final SessionService sessionService;
 
-    public OrderController(OrderService orderService, OrderItemService orderItemService, SessionService sessionService) {
+    public OrderController(OrderService orderService, SessionService sessionService) {
         this.orderService = orderService;
-        this.orderItemService = orderItemService;
         this.sessionService = sessionService;
     }
-
+    
     @GetMapping
-    public ResponseEntity<?> getUserOrders(HttpServletRequest request) {
-        UserSessionDTO user = sessionService.getUserFromSession(request);
-
-        List<Order> orders = orderService.getUserOrders(user.getId());
+    public ResponseEntity<?> getUserOrders(HttpServletRequest request){
+        List<Order> orders = orderService.getUserOrders(sessionService.getFullUserFromSession(request));
         return ResponseEntity.ok(orders);
     }
     
