@@ -24,51 +24,53 @@ public class CartController extends BaseController{
     private final CartService cartService;
     private final ProductService productService;
     private final CartItemService cartItemService;
-    private final SessionService sessionService;
 
-    public CartController(SessionService sessionService, CartService cartService, ProductService productService, CartItemService cartItemService, SessionService sessionService1) {
+    public CartController(SessionService sessionService, CartService cartService, ProductService productService, CartItemService cartItemService) {
         super(sessionService);
         this.cartService = cartService;
         this.productService = productService;
         this.cartItemService = cartItemService;
-        this.sessionService = sessionService1;
     }
-
 
     @GetMapping
     public ResponseEntity<?> getCart(HttpServletRequest request) {
-        User user = getFullUserOrThrow(request);
-        Cart cart = cartService.getCartByUser(user);
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(
+                cartService.getCartByUser(
+                        getFullUserOrThrow(request))
+        );
     }
 
-    @GetMapping("/item")
+    @GetMapping("/items")
     public ResponseEntity<?> getCartItem(@RequestParam Long itemId, HttpServletRequest request) {
-        User user = getFullUserOrThrow(request);
-        CartItem cartItem = cartItemService.getById(itemId);
-        return ResponseEntity.ok(cartItem);
+        return ResponseEntity.ok(
+                cartItemService.getByIdForUser(
+                        itemId,getFullUserOrThrow(request))
+        );
     }
 
     @PostMapping("/items")
     public ResponseEntity<?> addToCart(@RequestParam Long productId, @RequestParam(defaultValue = "1") int quantity, HttpServletRequest request) {
-        User user = getFullUserOrThrow(request);
-        Product product = productService.findById(productId);
-        cartService.addItem(product, quantity, user);
+        cartService.addItem(
+                productService.findById(productId),
+                quantity,
+                getFullUserOrThrow(request)
+        );
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Товар добавлен в корзину"));
     }
 
     @DeleteMapping("/items")
     public ResponseEntity<?> removeFromCart(@RequestParam Long itemId, HttpServletRequest request) {
-        User user = getFullUserOrThrow(request);
-        cartItemService.removeItem(itemId, user);
+        cartItemService.removeItem(itemId, getFullUserOrThrow(request));
         return ResponseEntity.ok(Map.of("message", "Товар удален из корзины"));
     }
 
-    @PutMapping("/items/{itemId}")
+    @PutMapping("/items")
     public ResponseEntity<?> updateCartItemQuantity(@RequestParam Long itemId,
                                                     @RequestParam(defaultValue = "1") int delta,
                                                     HttpServletRequest request) {
-        User user = getFullUserOrThrow(request);
-        return ResponseEntity.ok(cartItemService.updateQuantity(itemId, delta, user));
+        return ResponseEntity.ok(
+                cartItemService.updateQuantity(
+                        itemId, delta, getFullUserOrThrow(request))
+        );
     }
 }

@@ -25,11 +25,12 @@ public class OrderController extends BaseController{
 
     @GetMapping
     public ResponseEntity<?> getUserOrders(HttpServletRequest request){
-        List<Order> orders = orderService.getUserOrders(sessionService.getFullUserFromSession(request));
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(orderService.getUserOrders(
+                sessionService.getFullUserFromSession(request))
+        );
     }
     
-    @GetMapping("/get")
+    @GetMapping("/getOrder")
     public ResponseEntity<?> getOrderById(@RequestParam Long orderId, HttpServletRequest request) {
         Order order = orderService.getOrderByIdAndUserId(orderId, getFullUserOrThrow(request));
         if (order == null)
@@ -44,8 +45,8 @@ public class OrderController extends BaseController{
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
     
-    @DeleteMapping("/{orderId}")
-    public ResponseEntity<?> cancelOrder(@PathVariable Long orderId, HttpServletRequest request) {
+    @DeleteMapping
+    public ResponseEntity<?> cancelOrder(@RequestParam Long orderId, HttpServletRequest request) {
         orderService.cancelOrder(orderId,  getFullUserOrThrow(request));
         return ResponseEntity.ok(Map.of("message", "Заказ отменен"));
     }

@@ -27,13 +27,12 @@ public class Product {
     @Column(name = "name", nullable = false)
     private String name;
 
-    // Изменяем поле categoryId на связь с Category
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "category_id", insertable = false, updatable = false)
     private Category category;
 
     @Column(name = "brand_id", nullable = false)
-    private int brandId;
+    private Long brandId;
 
     @Column(name = "model", nullable = false)
     private String model;

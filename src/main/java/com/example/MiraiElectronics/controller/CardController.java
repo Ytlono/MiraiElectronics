@@ -20,11 +20,13 @@ public class CardController extends BaseController{
 
     @PostMapping("/addCard")
     public ResponseEntity<?> addPaymentMethod(@RequestBody CardDTO cardDTO, HttpServletRequest request) {
-        return ResponseEntity.ok(cardService.addCard(cardDTO,getFullUserOrThrow(request)));
+        return ResponseEntity.ok(
+                cardService.addCard(cardDTO,getFullUserOrThrow(request))
+        );
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCard(@PathVariable Long id, HttpServletRequest request) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteCard(@RequestParam Long id, HttpServletRequest request) {
         return ResponseEntity.ok(
                 cardService.deleteCard(id,getFullUserOrThrow(request))
         );
@@ -36,5 +38,4 @@ public class CardController extends BaseController{
                 cardService.getAllUserCards(getFullUserOrThrow(request))
         );
     }
-
 }

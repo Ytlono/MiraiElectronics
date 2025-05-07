@@ -23,19 +23,17 @@ public class AuthService {
 
 
     public User register(RegisterDTO registerRequest){
-        if (userService.isUserExist(registerRequest.getEmail(),registerRequest.getUsername())) {
+        if (userService.isUserExist(registerRequest.getEmail(),registerRequest.getUsername()))
             throw new RuntimeException("Пользователь с таким email уже существует");
-        }
-
-        String encodedPassword =passwordEncoder.encode(registerRequest.getPassword());
 
         User user = User.builder()
                 .email(registerRequest.getEmail())
                 .username(registerRequest.getUsername())
-                .password(encodedPassword)
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .balance(BigDecimal.ZERO)
                 .role(Role.USER)
                 .build();
+
         userService.createUser(user);
         cartService.createCart(user);
         return user;
@@ -44,9 +42,8 @@ public class AuthService {
     public User login(AuthRequest authRequest) {
         User user = userService.findByUsername(authRequest.getUsername());
 
-        if (user == null || !passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
+        if (user == null || !passwordEncoder.matches(authRequest.getPassword(), user.getPassword()))
             return null;
-        }
 
         return user;
     }

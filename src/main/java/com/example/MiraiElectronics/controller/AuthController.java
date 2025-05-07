@@ -53,9 +53,9 @@ public class AuthController {
 
     @PostMapping("/confirmEmail")
     public ResponseEntity<?> confirmEmail(@RequestParam String email, @RequestParam String code, @SessionAttribute("pendingUser") RegisterDTO pendingUser) {
-        if (!confirmationService.isConfirmed(email, code)) {
+        if (!confirmationService.isConfirmed(email, code))
             return ResponseEntity.ok("discard");
-        }
+
         confirmationService.removeConfirmedEmail(email);
         authService.register(pendingUser);
         return ResponseEntity.ok(pendingUser);
@@ -86,7 +86,7 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-        sessionService.saveUserToSession(request, user); // правильный способ
+        sessionService.saveUserToSession(request, user);
 
 
         logger.info("Login successful for user: {}", authRequest.getUsername());
