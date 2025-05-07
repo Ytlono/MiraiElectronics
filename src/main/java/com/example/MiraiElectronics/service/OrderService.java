@@ -22,24 +22,19 @@ import java.util.List;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemService orderItemService;
-    private final SessionService sessionService;
     private final PaymentService paymentService;
     private final TransactionService transactionService;
 
-    public OrderService(OrderRepository orderRepository, OrderItemService orderItemService, SessionService sessionService, PaymentService paymentService, TransactionService transactionService) {
+    public OrderService(OrderRepository orderRepository, OrderItemService orderItemService, PaymentService paymentService, TransactionService transactionService) {
         this.orderRepository = orderRepository;
         this.orderItemService = orderItemService;
-        this.sessionService = sessionService;
         this.paymentService = paymentService;
         this.transactionService = transactionService;
     }
 
 
     @Transactional
-    public ResponseEntity<?> makeOrder(OrderRequest orderRequest, HttpServletRequest request) {
-        var user = sessionService.getFullUserFromSession(request);
-        if (user == null)
-            return ResponseEntity.ok("User not found");
+    public ResponseEntity<?> makeOrder(OrderRequest orderRequest,User user) {
 
         String shippingAddress = user.getAddress()!= null ? user.getAddress() : orderRequest.getShippingAddress();
 

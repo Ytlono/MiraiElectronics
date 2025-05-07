@@ -67,37 +67,32 @@ public class UserService implements UserDetailsService {
 
     public User createUser(User user){
         Optional<User> optionalUser = userRepository.findByEmail(user.getEmail());
-        if (optionalUser.isPresent()){
+        if (optionalUser.isPresent())
             throw new IllegalStateException("user with such email exists");
-        }
+
         return userRepository.save(user);
     }
 
     @Transactional
-    public ResponseEntity<?> updateUser(Long id, UpdateUserDataDTO updateUserDataDTO){
+    public User updateUser(User currentUser, UpdateUserDataDTO updateUserDataDTO) {
         UpdateUserDataDTO validUpdateUserData = validateAndNormalize(updateUserDataDTO);
 
-        User existingUser = findById(id);
-
-        if (!existingUser.getUsername().equals(validUpdateUserData.getUsername()) && 
-            isUserExist(null, validUpdateUserData.getUsername())) {
+        if (!currentUser.getUsername().equals(validUpdateUserData.getUsername()) &&
+                isUserExist(null, validUpdateUserData.getUsername())) {
             throw new IllegalArgumentException("username already used");
         }
 
-        existingUser.setUsername(validUpdateUserData.getUsername());
-        existingUser.setPhone(validUpdateUserData.getPhoneNumber());
-        existingUser.setAddress(validUpdateUserData.getAddress().toString());
+        currentUser.setUsername(validUpdateUserData.getUsername());
+        currentUser.setPhone(validUpdateUserData.getPhoneNumber());
+        currentUser.setAddress(validUpdateUserData.getAddress().toString());
 
-        User updatedUser = userRepository.save(existingUser);
-        return ResponseEntity.ok(updatedUser);
+        return userRepository.save(currentUser);
     }
 
-    public ResponseEntity<?> deleteUser(Long id){
-        Optional<User> optionalUser = userRepository.findById(id);
-        if(optionalUser.isEmpty()){
-            throw new IllegalStateException("No users with such id");
-        }
-        return ResponseEntity.ok("deleted" + optionalUser.get().getUsername());
+
+    public ResponseEntity<?> deleteUser(User user){
+        userRepository.delete(user);
+        return ResponseEntity.ok("deleted" + user.getUsername());
     }
 
     public boolean isUserExist(String email, String username) {
@@ -108,17 +103,14 @@ public class UserService implements UserDetailsService {
 
 
     public UpdateUserDataDTO validateAndNormalize(UpdateUserDataDTO dto) {
-        if (!parserService.isValidUsername(dto.getUsername())) {
+        if (!parserService.isValidUsername(dto.getUsername()))
             throw new IllegalArgumentException("Invalid username format");
-        }
 
-        if (!parserService.isValidPhoneNumber(dto.getPhoneNumber())) {
+        if (!parserService.isValidPhoneNumber(dto.getPhoneNumber()))
             throw new IllegalArgumentException("Invalid phone number format");
-        }
 
-        if (!parserService.isValidAddress(dto.getAddress())) {
+        if (!parserService.isValidAddress(dto.getAddress()))
             throw new IllegalArgumentException("Invalid address format");
-        }
 
         return new UpdateUserDataDTO(
                 dto.getUsername().trim().toLowerCase(),

@@ -16,53 +16,28 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
-public class CustomerController {
+public class CustomerController extends BaseController{
     private final UserService userService;
-    private final SessionService sessionService;
 
-    public CustomerController(UserService userService, SessionService sessionService) {
+    public CustomerController(SessionService sessionService, UserService userService) {
+        super(sessionService);
         this.userService = userService;
-        this.sessionService = sessionService;
     }
 
     @GetMapping("/profile")
     public ResponseEntity<?> getUserProfile(HttpServletRequest request) {
-        UserSessionDTO userSession = sessionService.getUserFromSession(request);
-        if (userSession == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
-        }
-        
-        User user = userService.findById(userSession.getId());
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(getFullUserOrThrow(request));
     }
 
     @PutMapping("/profile")
     public ResponseEntity<?> updateUserData(@Valid @RequestBody UpdateUserDataDTO updateUserDataDTO, HttpServletRequest request) {
-        UserSessionDTO userSession = sessionService.getUserFromSession(request);
-        if (userSession == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
-        }
-        
-        Long userId = userSession.getId();
-        // Обновляем пользователя
-        ResponseEntity<?> response = userService.updateUser(userId, updateUserDataDTO);
-        
-        // Получаем обновленного пользователя из базы данных
-        User updatedUser = userService.findById(userId);
-        
-        // Обновляем пользователя в сессии
-        sessionService.saveUserToSession(request, updatedUser);
-        
-        return response;
+        User userUpdate = userService.updateUser(getFullUserOrThrow(request), updateUserDataDTO);
+        sessionService.saveUserToSession(request, userUpdate);
+        return ResponseEntity.ok(userUpdate);
     }
 
     @DeleteMapping("/profile")
     public ResponseEntity<?> deleteUser(HttpServletRequest request) {
-        UserSessionDTO userSession = sessionService.getUserFromSession(request);
-        if (userSession == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
-        }
-        
-        return userService.deleteUser(userSession.getId());
+        return userService.deleteUser(getFullUserOrThrow(request));
     }
 }

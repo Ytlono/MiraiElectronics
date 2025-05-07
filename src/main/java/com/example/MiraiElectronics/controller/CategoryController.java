@@ -5,6 +5,7 @@ import com.example.MiraiElectronics.repository.CategoryRepository;
 import com.example.MiraiElectronics.service.CategoryService;
 import com.example.MiraiElectronics.service.ProductServices.ProductService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +22,8 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getCategory(@PathVariable Long id) {
+    @GetMapping("/get")
+    public ResponseEntity<?> getCategory(@RequestParam Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
         return ResponseEntity.ok(category);
@@ -34,22 +35,25 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/add")
     public ResponseEntity<?> addCategory(@RequestBody Category category){
         Category saved = categoryRepository.save(category);
         return ResponseEntity.ok(saved);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Long id){
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteCategory(@RequestParam Long id){
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
         return ResponseEntity.ok("deleted category with id: " + id);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable Long id,@RequestBody Category updateCategory){
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/update")
+    public ResponseEntity<?> updateCategory(@RequestParam Long id,@RequestBody Category updateCategory){
         categoryService.updateCategory(id,updateCategory);
         return ResponseEntity.ok(updateCategory);
     }

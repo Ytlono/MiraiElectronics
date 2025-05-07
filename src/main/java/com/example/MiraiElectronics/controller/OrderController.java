@@ -18,42 +18,39 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
-public class OrderController {
+public class OrderController extends BaseController{
     private final OrderService orderService;
-    private final SessionService sessionService;
 
-    public OrderController(OrderService orderService, SessionService sessionService) {
+    public OrderController(SessionService sessionService, OrderService orderService) {
+        super(sessionService);
         this.orderService = orderService;
-        this.sessionService = sessionService;
     }
-    
+
     @GetMapping
     public ResponseEntity<?> getUserOrders(HttpServletRequest request){
         List<Order> orders = orderService.getUserOrders(sessionService.getFullUserFromSession(request));
         return ResponseEntity.ok(orders);
     }
     
-    @GetMapping("/{orderId}")
-    public ResponseEntity<?> getOrderById(@PathVariable Long orderId, HttpServletRequest request) {
-        User user = sessionService.getFullUserFromSession(request);
-
-        Order order = orderService.getOrderByIdAndUserId(orderId, user);
-        if (order == null) {
+    @GetMapping("/get")
+    public ResponseEntity<?> getOrderById(@RequestParam Long orderId, HttpServletRequest request) {
+        Order order = orderService.getOrderByIdAndUserId(orderId, getFullUserOrThrow(request));
+        if (order == null)
             return ResponseEntity.notFound().build();
-        }
+
         return ResponseEntity.ok(order);
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createOrder(@Valid @RequestBody OrderRequest orderRequest, HttpServletRequest request) {
-        UserSessionDTO user = sessionService.getUserFromSession(request);
-        ResponseEntity<?> order = orderService.makeOrder(orderRequest, request);
+        ResponseEntity<?> order = orderService.makeOrder(orderRequest, getFullUserOrThrow(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
     
     @DeleteMapping("/{orderId}")
     public ResponseEntity<?> cancelOrder(@PathVariable Long orderId, HttpServletRequest request) {
-        orderService.cancelOrder(orderId, sessionService.getFullUserFromSession(request));
+        orderService.cancelOrder(orderId,  getFullUserOrThrow(request));
         return ResponseEntity.ok(Map.of("message", "Заказ отменен"));
     }
+
 }

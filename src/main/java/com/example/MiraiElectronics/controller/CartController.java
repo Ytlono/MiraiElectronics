@@ -20,18 +20,20 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/cart")
-public class CartController {
+public class CartController extends BaseController{
     private final CartService cartService;
     private final ProductService productService;
     private final CartItemService cartItemService;
     private final SessionService sessionService;
 
-    public CartController(CartService cartService, ProductService productService, CartItemService cartItemService, SessionService sessionService) {
+    public CartController(SessionService sessionService, CartService cartService, ProductService productService, CartItemService cartItemService, SessionService sessionService1) {
+        super(sessionService);
         this.cartService = cartService;
         this.productService = productService;
         this.cartItemService = cartItemService;
-        this.sessionService = sessionService;
+        this.sessionService = sessionService1;
     }
+
 
     @GetMapping
     public ResponseEntity<?> getCart(HttpServletRequest request) {
@@ -40,7 +42,6 @@ public class CartController {
         return ResponseEntity.ok(cart);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/item")
     public ResponseEntity<?> getCartItem(@RequestParam Long itemId, HttpServletRequest request) {
         User user = getFullUserOrThrow(request);
@@ -69,9 +70,5 @@ public class CartController {
                                                     HttpServletRequest request) {
         User user = getFullUserOrThrow(request);
         return ResponseEntity.ok(cartItemService.updateQuantity(itemId, delta, user));
-    }
-
-    private User getFullUserOrThrow(HttpServletRequest request) {
-        return sessionService.getFullUserFromSession(request);
     }
 }
