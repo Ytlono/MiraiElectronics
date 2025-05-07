@@ -1,10 +1,7 @@
 package com.example.MiraiElectronics.controller;
 
 import com.example.MiraiElectronics.dto.OrderRequest;
-import com.example.MiraiElectronics.dto.UserSessionDTO;
 import com.example.MiraiElectronics.repository.realization.Order;
-import com.example.MiraiElectronics.repository.realization.User;
-import com.example.MiraiElectronics.service.OrderItemService;
 import com.example.MiraiElectronics.service.OrderService;
 import com.example.MiraiElectronics.service.SessionService;
 import jakarta.servlet.http.HttpServletRequest;
