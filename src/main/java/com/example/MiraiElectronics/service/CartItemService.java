@@ -1,10 +1,7 @@
 package com.example.MiraiElectronics.service;
 
-import com.example.MiraiElectronics.repository.realization.Cart;
-import com.example.MiraiElectronics.repository.realization.CartItem;
+import com.example.MiraiElectronics.repository.realization.*;
 import com.example.MiraiElectronics.repository.CartItemRepository;
-import com.example.MiraiElectronics.repository.realization.Product;
-import com.example.MiraiElectronics.repository.realization.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +20,11 @@ public class CartItemService {
         return cartItemRepository.findById(id).orElseThrow();
     }
 
+    public CartItem getByIdForUser(Long id,User user){
+        CartItem cartItem = getById(id);
+        isCartOwnedByUser(cartItem,user);
+        return cartItem;
+    }
     public List<CartItem> getAllById(List<Long> ids){
         return cartItemRepository.findAllById(ids);
     }

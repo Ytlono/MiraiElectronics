@@ -24,19 +24,19 @@ public class CustomerController extends BaseController{
         this.userService = userService;
     }
 
-    @GetMapping("/profile")
+    @GetMapping
     public ResponseEntity<?> getUserProfile(HttpServletRequest request) {
         return ResponseEntity.ok(getFullUserOrThrow(request));
     }
 
-    @PutMapping("/profile")
+    @PutMapping
     public ResponseEntity<?> updateUserData(@Valid @RequestBody UpdateUserDataDTO updateUserDataDTO, HttpServletRequest request) {
         User userUpdate = userService.updateUser(getFullUserOrThrow(request), updateUserDataDTO);
         sessionService.saveUserToSession(request, userUpdate);
         return ResponseEntity.ok(userUpdate);
     }
 
-    @DeleteMapping("/profile")
+    @DeleteMapping
     public ResponseEntity<?> deleteUser(HttpServletRequest request) {
         return userService.deleteUser(getFullUserOrThrow(request));
     }

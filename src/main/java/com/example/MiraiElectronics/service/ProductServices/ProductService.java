@@ -1,8 +1,11 @@
 package com.example.MiraiElectronics.service.ProductServices;
 
+import com.example.MiraiElectronics.Mapper.ProductMapper;
 import com.example.MiraiElectronics.dto.FilterDTO;
+import com.example.MiraiElectronics.dto.ProductDTO;
 import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.repository.ProductRepository;
+import com.example.MiraiElectronics.service.CategoryService;
 import com.example.MiraiElectronics.service.FilterServices.FilterService;
 import com.example.MiraiElectronics.service.TemplateSortService;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,11 +17,28 @@ import java.util.*;
 public class ProductService {
     protected final ProductRepository productRepository;
     private final TemplateSortService templateSortService;
+    private final CategoryService categoryService;
+    private final ProductMapper productMapper;
 
-    public ProductService(ProductRepository productRepository, TemplateSortService templateSortService) {
+    public ProductService(ProductRepository productRepository, TemplateSortService templateSortService, CategoryService categoryService, ProductMapper productMapper) {
         this.productRepository = productRepository;
         this.templateSortService = templateSortService;
+        this.categoryService = categoryService;
+        this.productMapper = productMapper;
     }
+
+    public Product addProduct(ProductDTO productDTO){return productRepository.save(toEntity(productDTO));}
+
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
+    }
+
+    public Product updateProduct(Long id, ProductDTO productDTO) {
+        Product product = findById(id);
+        productMapper.updateProduct(toEntity(productDTO), product);
+        return productRepository.save(product);
+    }
+
 
     public List<Product> findAllByName(String name) {
         return productRepository.findAllByName(name);
@@ -35,11 +55,6 @@ public class ProductService {
     public Product findById(Long id) {
         return productRepository.findById(id).orElseThrow();
     }
-
-    public void deleteProduct(Long id) {
-        productRepository.deleteById(id);
-    }
-
 
     public List<Product> sorter(Long categoryId, int sortId) {
         return switch (sortId) {
@@ -129,5 +144,18 @@ public class ProductService {
 
     private Comparator<Product> compareByNameDescending() {
         return Comparator.comparing((Product p) -> p.getName().toLowerCase()).reversed();
+    }
+
+    public Product toEntity(ProductDTO dto) {
+        return Product.builder()
+                .name(dto.getName())
+                .category(categoryService.findById(dto.getCategoryId()))
+                .brandId(dto.getBrandId())
+                .model(dto.getModel())
+                .price(dto.getPrice())
+                .stockQuantity(dto.getStockQuantity())
+                .description(dto.getDescription())
+                .attributes(dto.getAttributes())
+                .build();
     }
 }
