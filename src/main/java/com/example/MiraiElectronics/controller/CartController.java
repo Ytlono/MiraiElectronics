@@ -2,6 +2,7 @@ package com.example.MiraiElectronics.controller;
 
 import com.example.MiraiElectronics.dto.UserSessionDTO;
 import com.example.MiraiElectronics.repository.realization.Cart;
+import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.repository.realization.User;
 import com.example.MiraiElectronics.service.CartItemService;
@@ -11,8 +12,10 @@ import com.example.MiraiElectronics.service.SessionService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @RestController
@@ -32,46 +35,43 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<?> getCart(HttpServletRequest request) {
-        UserSessionDTO user = sessionService.getUserFromSession(request);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
-        }
-        
-        Cart cart = cartService.getCart(user.getId());
+        User user = getFullUserOrThrow(request);
+        Cart cart = cartService.getCartByUser(user);
         return ResponseEntity.ok(cart);
     }
 
-    @PostMapping("/items/{productId}")
-    public ResponseEntity<?> addToCart(@PathVariable Long productId, @RequestParam(defaultValue = "1") int quantity, HttpServletRequest request) {
-        User user = sessionService.getFullUserFromSession(request);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
-        }
-        
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/item")
+    public ResponseEntity<?> getCartItem(@RequestParam Long itemId, HttpServletRequest request) {
+        User user = getFullUserOrThrow(request);
+        CartItem cartItem = cartItemService.getById(itemId);
+        return ResponseEntity.ok(cartItem);
+    }
+
+    @PostMapping("/items")
+    public ResponseEntity<?> addToCart(@RequestParam Long productId, @RequestParam(defaultValue = "1") int quantity, HttpServletRequest request) {
+        User user = getFullUserOrThrow(request);
         Product product = productService.findById(productId);
         cartService.addItem(product, quantity, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Товар добавлен в корзину"));
     }
-    
-    @DeleteMapping("/items/{itemId}")
-    public ResponseEntity<?> removeFromCart(@PathVariable Long itemId, HttpServletRequest request) {
-        UserSessionDTO user = sessionService.getUserFromSession(request);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
-        }
-        
-        cartItemService.removeItem(itemId, user.getId());
+
+    @DeleteMapping("/items")
+    public ResponseEntity<?> removeFromCart(@RequestParam Long itemId, HttpServletRequest request) {
+        User user = getFullUserOrThrow(request);
+        cartItemService.removeItem(itemId, user);
         return ResponseEntity.ok(Map.of("message", "Товар удален из корзины"));
     }
-    
+
     @PutMapping("/items/{itemId}")
-    public ResponseEntity<?> updateCartItemQuantity(@PathVariable Long itemId, @RequestParam int quantity, HttpServletRequest request) {
-        UserSessionDTO user = sessionService.getUserFromSession(request);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Пользователь не авторизован"));
-        }
-        
-        cartItemService.updateQuantity(itemId, quantity, user.getId());
-        return ResponseEntity.ok(Map.of("message", "Количество товара обновлено"));
+    public ResponseEntity<?> updateCartItemQuantity(@RequestParam Long itemId,
+                                                    @RequestParam(defaultValue = "1") int delta,
+                                                    HttpServletRequest request) {
+        User user = getFullUserOrThrow(request);
+        return ResponseEntity.ok(cartItemService.updateQuantity(itemId, delta, user));
+    }
+
+    private User getFullUserOrThrow(HttpServletRequest request) {
+        return sessionService.getFullUserFromSession(request);
     }
 }

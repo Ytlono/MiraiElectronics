@@ -35,13 +35,16 @@ public class CartService {
     }
 
     public Cart getCartByUser(User user){
-        return cartRepository.findByUser(user)
-                .orElseThrow();
+        return cartRepository.findByUser(user);
     }
 
     @Transactional
     public void addItem(Product product, int quantity, User user) {
+        if (user == null)
+            System.out.println("USER_IS_NULL");
         Cart cart = getCartByUser(user);
+        if (cart == null)
+            System.out.println("CART_IS_NULL");
         CartItem cartItem = cartItemService.createCartItem(product, quantity, cart);
         cart.getCartItems().add(cartItem);
         cartRepository.save(cart);

@@ -29,10 +29,12 @@ public class CartItemService {
 
     @Transactional
     public CartItem createCartItem(Product product, int quantity, Cart cart) {
-        CartItem cartItem = new CartItem();
-        cartItem.setProduct(product);
-        cartItem.setQuantity(quantity);
-        cartItem.setPrice(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+        CartItem cartItem = CartItem.builder()
+                .product(product)
+                .quantity(quantity)
+                .price(product.getPrice().multiply(BigDecimal.valueOf(quantity)))
+                .cart(cart)
+                .build();
         return cartItemRepository.save(cartItem);
     }
 
@@ -42,40 +44,35 @@ public class CartItemService {
     }
     
     @Transactional
-    public void updateCartItem(CartItem cartItem) {
-        cartItemRepository.save(cartItem);
+    public CartItem updateCartItem(CartItem cartItem) {
+        return cartItemRepository.save(cartItem);
     }
     
     @Transactional
-    public void removeItem(Long itemId, Long userId) {
+    public void removeItem(Long itemId, User user) {
         CartItem cartItem = getById(itemId);
-        deleteCartItem(itemId);
 
-//        if (cartItem.getCart().getCartId().equals(userId)) {
-//
-//        } else {
-//            throw new IllegalArgumentException("Товар не принадлежит корзине пользователя");
-//        }
+        isCartOwnedByUser(cartItem,user);
+
+        deleteCartItem(itemId);
     }
     
     @Transactional
-    public void updateQuantity(Long itemId, int quantity, Long userId) {
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("Количество товара должно быть больше 0");
-        }
+    public CartItem updateQuantity(Long itemId, int quantity, User user) {
         CartItem cartItem = getById(itemId);
+        isCartOwnedByUser(cartItem,user);
+
+        if (quantity <= 0)
+            throw new IllegalArgumentException("Количество товара должно быть больше 0");
+
         cartItem.setQuantity(quantity);
         cartItem.setPrice(cartItem.getProduct().getPrice().multiply(BigDecimal.valueOf(quantity)));
-        updateCartItem(cartItem);
-
-//        if (cartItem.getCart().getCartId().equals(userId)) {
-//
-//        } else {
-//            throw new IllegalArgumentException("Товар не принадлежит корзине пользователя");
-//        }
+        return updateCartItem(cartItem);
     }
 
-    private void userCheck(CartItem cartItem, User user){
-
+    private void isCartOwnedByUser(CartItem cartItem, User user){
+        if (!cartItem.getCart().getUser().equals(user)) {
+            throw new IllegalArgumentException("Товар не принадлежит корзине пользователя");
+        }
     }
 }
