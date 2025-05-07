@@ -1,5 +1,6 @@
 package com.example.MiraiElectronics.repository.realization;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,4 +30,9 @@ public class CartItem {
 
     @Column(name = "price", nullable = false)
     private BigDecimal price;
+
+    @ManyToOne
+    @JoinColumn(name = "cart_id", nullable = false)
+    @JsonBackReference
+    private Cart cart;
 }
