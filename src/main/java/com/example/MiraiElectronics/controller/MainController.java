@@ -14,12 +14,6 @@ public class MainController {
         this.categoryRepository = categoryRepository;
     }
 
-    @GetMapping("/singup")
-    public String singUp(Model model){
-        model.addAttribute("title","Sing Up page");
-        return "signup";
-    }
-
     @GetMapping("/")
     public String home(Model model){
         model.addAttribute("categories",categoryRepository.findAll());

@@ -10,34 +10,31 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/card")
-public class CardController {
-    private final SessionService sessionService;
+public class CardController extends BaseController{
     private final CardService cardService;
 
     public CardController(SessionService sessionService, CardService cardService) {
-        this.sessionService = sessionService;
+        super(sessionService);
         this.cardService = cardService;
     }
 
     @PostMapping("/addCard")
     public ResponseEntity<?> addPaymentMethod(@RequestBody CardDTO cardDTO, HttpServletRequest request) {
-        User user = sessionService.getFullUserFromSession(request);
-        return ResponseEntity.ok(cardService.addCard(cardDTO,user));
+        return ResponseEntity.ok(cardService.addCard(cardDTO,getFullUserOrThrow(request)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCard(@PathVariable Long id, HttpServletRequest request) {
         return ResponseEntity.ok(
-                cardService.deleteCard(id, sessionService.
-                        getFullUserFromSession(request))
+                cardService.deleteCard(id,getFullUserOrThrow(request))
         );
     }
 
     @GetMapping
     public ResponseEntity<?> getAllUserCards(HttpServletRequest request){
         return ResponseEntity.ok(
-                cardService.getAllUserCards(sessionService.
-                        getFullUserFromSession(request))
+                cardService.getAllUserCards(getFullUserOrThrow(request))
         );
     }
+
 }
