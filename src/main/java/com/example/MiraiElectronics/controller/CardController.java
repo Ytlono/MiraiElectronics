@@ -27,9 +27,8 @@ public class CardController extends BaseController{
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteCard(@RequestParam Long id, HttpServletRequest request) {
-        return ResponseEntity.ok(
-                cardService.deleteCard(id,getFullUserOrThrow(request))
-        );
+        cardService.deleteCard(id,getFullUserOrThrow(request));
+        return ResponseEntity.ok("deleted");
     }
 
     @GetMapping

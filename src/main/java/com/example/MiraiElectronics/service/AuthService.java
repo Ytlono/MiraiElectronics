@@ -22,10 +22,7 @@ public class AuthService {
     }
 
 
-    public User register(RegisterDTO registerRequest){
-        if (userService.isUserExist(registerRequest.getEmail(),registerRequest.getUsername()))
-            throw new RuntimeException("Пользователь с таким email уже существует");
-
+    public void register(RegisterDTO registerRequest){
         User user = User.builder()
                 .email(registerRequest.getEmail())
                 .username(registerRequest.getUsername())
@@ -34,9 +31,8 @@ public class AuthService {
                 .role(Role.USER)
                 .build();
 
-        userService.createUser(user);
+        userService.saveUser(user);
         cartService.createCart(user);
-        return user;
     }
 
     public User login(AuthRequest authRequest) {

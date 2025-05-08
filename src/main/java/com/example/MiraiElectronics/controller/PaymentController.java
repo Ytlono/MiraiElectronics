@@ -29,20 +29,20 @@ public class PaymentController extends BaseController {
 
     @PostMapping("/top-up")
     public ResponseEntity<?> topUpBalance(@RequestBody TopUpBalanceDTO dto, HttpServletRequest request) {
-        if (dto.getCardId() == null)
-            return ResponseEntity.badRequest().body("Card ID cannot be null");
-
-        var balance = paymentService.topUpUserBalanceFromCard(
-                dto.getCardId(), dto.getSum(), getFullUserOrThrow(request)
+        return ResponseEntity.ok(
+                "Balance topped up successfully. New balance: " +
+                paymentService.topUpUserBalanceFromCard(
+                dto.getCardId(), dto.getSum(), getFullUserOrThrow(request))
         );
-        return ResponseEntity.ok("Balance topped up successfully. New balance: " + balance);
     }
 
 
     @GetMapping("/history")
     public ResponseEntity<?> getTransactionHistory(HttpServletRequest request) {
-        var transactions = transactionService.getAllTransactions(getFullUserOrThrow(request));
-        return ResponseEntity.ok(transactions);
+        return ResponseEntity.ok(
+                transactionService.getAllTransactions(
+                        getFullUserOrThrow(request))
+        );
     }
 }
 
