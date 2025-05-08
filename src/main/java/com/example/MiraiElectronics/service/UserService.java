@@ -1,9 +1,11 @@
 package com.example.MiraiElectronics.service;
 
+import com.example.MiraiElectronics.Mapper.UserMapper;
 import com.example.MiraiElectronics.dto.UpdateUserDataDTO;
 import com.example.MiraiElectronics.repository.UserRepository;
 import com.example.MiraiElectronics.repository.realization.User;
 import com.example.MiraiElectronics.service.Parser.UserParserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,16 +17,19 @@ import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
+
     private final UserRepository userRepository;
     private final UserParserService parserService;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, UserParserService userParserService) {
+    public UserService(UserRepository userRepository, UserParserService parserService, UserMapper userMapper) {
         this.userRepository = userRepository;
-        this.parserService = userParserService;
+        this.parserService = parserService;
+        this.userMapper = userMapper;
     }
 
     @Transactional
-    public void saveUser(User user){
+    public void saveUser(User user) {
         userRepository.save(user);
     }
 
@@ -40,6 +45,11 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
+    public User findById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Пользователь с ID " + id + " не найден"));
+    }
+
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден: " + username));
@@ -48,11 +58,6 @@ public class UserService implements UserDetailsService {
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь с email " + email + " не найден"));
-    }
-
-    public User findById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Пользователь с ID " + id + " не найден"));
     }
 
     public User getUser(Long id) {
@@ -65,58 +70,17 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
 
-    public User createUser(User user){
-        Optional<User> optionalUser = userRepository.findByEmail(user.getEmail());
-        if (optionalUser.isPresent())
-            throw new IllegalStateException("user with such email exists");
-
-        return userRepository.save(user);
-    }
-
     @Transactional
     public User updateUser(User currentUser, UpdateUserDataDTO updateUserDataDTO) {
-        UpdateUserDataDTO validUpdateUserData = validateAndNormalize(updateUserDataDTO);
-
-        if (!currentUser.getUsername().equals(validUpdateUserData.getUsername()) &&
-                isUserExist(null, validUpdateUserData.getUsername())) {
-            throw new IllegalArgumentException("username already used");
-        }
-
-        currentUser.setUsername(validUpdateUserData.getUsername());
-        currentUser.setPhone(validUpdateUserData.getPhoneNumber());
-        currentUser.setAddress(validUpdateUserData.getAddress().toString());
-
+        userMapper.updateUserFromDto(updateUserDataDTO, currentUser);
         return userRepository.save(currentUser);
     }
 
-
-    public ResponseEntity<?> deleteUser(User user){
+    public void deleteUser(User user) {
         userRepository.delete(user);
-        return ResponseEntity.ok("deleted" + user.getUsername());
     }
 
     public boolean isUserExist(String email, String username) {
-        boolean emailExists = email != null && userRepository.findByEmail(email).isPresent();
-        boolean usernameExists = username != null && userRepository.findByUsername(username).isPresent();
-        return emailExists || usernameExists;
+        return userRepository.existsByEmailOrUsername(email, username);
     }
-
-
-    public UpdateUserDataDTO validateAndNormalize(UpdateUserDataDTO dto) {
-        if (!parserService.isValidUsername(dto.getUsername()))
-            throw new IllegalArgumentException("Invalid username format");
-
-        if (!parserService.isValidPhoneNumber(dto.getPhoneNumber()))
-            throw new IllegalArgumentException("Invalid phone number format");
-
-        if (!parserService.isValidAddress(dto.getAddress()))
-            throw new IllegalArgumentException("Invalid address format");
-
-        return new UpdateUserDataDTO(
-                dto.getUsername().trim().toLowerCase(),
-                parserService.parsePhoneNumber(dto.getPhoneNumber()),
-                dto.getAddress()
-        );
-    }
-
 }

@@ -27,17 +27,13 @@ public class PaymentService {
 
     @Transactional
     public BigDecimal topUpUserBalanceFromCard(Long cardId, BigDecimal sum, User user) {
-        Card card = cardService.getCardById(cardId);
-        cardService.validateCardOwnership(card, user);
+        Card card = cardService.findById(cardId);
 
-        if (!cardService.hasSufficientBalance(sum, card)) {
-            throw new IllegalArgumentException("Insufficient funds on the card");
-        }
+        user.setBalance(
+                user.getBalance().add(
+                        cardService.withdrawFromCard(cardId,sum,user))
+        );
 
-        card.setBalance(card.getBalance().subtract(sum));
-        user.setBalance(user.getBalance().add(sum));
-
-        cardService.saveCard(card);
         userService.saveUser(user);
         transactionService.createTransaction(user,sum,"top-Up balance sum:" + String.valueOf(sum),TransactionType.TOP_UP);
         return user.getBalance();

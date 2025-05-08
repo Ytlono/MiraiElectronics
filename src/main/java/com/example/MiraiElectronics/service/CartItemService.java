@@ -25,6 +25,7 @@ public class CartItemService {
         isCartOwnedByUser(cartItem,user);
         return cartItem;
     }
+
     public List<CartItem> getAllById(List<Long> ids){
         return cartItemRepository.findAllById(ids);
     }
