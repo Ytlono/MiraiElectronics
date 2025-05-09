@@ -4,6 +4,7 @@ import com.example.MiraiElectronics.repository.OrderItemRepository;
 import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.repository.realization.Order;
 import com.example.MiraiElectronics.repository.realization.OrderItem;
+import com.example.MiraiElectronics.service.Generic.GenericEntityService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -11,15 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class OrderItemService {
+public class OrderItemService extends GenericEntityService<OrderItem,Long> {
     private final OrderItemRepository orderItemRepository;
     private final CartItemService cartItemService;
 
     public OrderItemService(OrderItemRepository orderItemRepository, CartItemService cartItemService) {
+        super(orderItemRepository);
         this.orderItemRepository = orderItemRepository;
         this.cartItemService = cartItemService;
     }
-
 
     public List<OrderItem> convertCartItemsToOrderItems(List<Long> ids, Order order) {
         List<CartItem> cartItems = cartItemService.getAllById(ids);
@@ -35,13 +36,5 @@ public class OrderItemService {
             orderItems.add(orderItem);
         }
         return orderItems;
-    }
-
-    public void saveOrderItem(OrderItem orderItem) {
-        orderItemRepository.save(orderItem);
-    }
-
-    public List<OrderItem> getItemsByIds(List<Long> ids){
-        return orderItemRepository.findAllById(ids);
     }
 }

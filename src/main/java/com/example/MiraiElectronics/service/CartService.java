@@ -5,17 +5,19 @@ import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.repository.CartRepository;
 import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.repository.realization.User;
+import com.example.MiraiElectronics.service.Generic.GenericEntityService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
 @Service
-public class CartService {
+public class CartService extends GenericEntityService<Cart,Long> {
     private final CartRepository cartRepository;
     private final CartItemService cartItemService;
 
     public CartService(CartRepository cartRepository, CartItemService cartItemService) {
+        super(cartRepository);
         this.cartRepository = cartRepository;
         this.cartItemService = cartItemService;
     }
@@ -27,11 +29,6 @@ public class CartService {
                 .build();
         cartRepository.save(cart);
         return cart;
-    }
-
-    public Cart getCart(Long id) {
-        return cartRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cart not found for id: " + id));
     }
 
     public Cart getCartByUser(User user){

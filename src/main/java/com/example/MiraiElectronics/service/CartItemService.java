@@ -1,7 +1,9 @@
 package com.example.MiraiElectronics.service;
 
-import com.example.MiraiElectronics.repository.realization.*;
 import com.example.MiraiElectronics.repository.CartItemRepository;
+import com.example.MiraiElectronics.repository.realization.*;
+import com.example.MiraiElectronics.service.Generic.GenericEntityService;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,25 +11,23 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Service
-public class CartItemService {
+public class CartItemService extends GenericEntityService<CartItem,Long> {
+
     private final CartItemRepository cartItemRepository;
 
     public CartItemService(CartItemRepository cartItemRepository) {
+        super(cartItemRepository);
         this.cartItemRepository = cartItemRepository;
     }
 
-    public CartItem getById(Long id) {
-        return cartItemRepository.findById(id).orElseThrow();
-    }
-
     public CartItem getByIdForUser(Long id,User user){
-        CartItem cartItem = getById(id);
+        CartItem cartItem = findById(id);
         isCartOwnedByUser(cartItem,user);
         return cartItem;
     }
 
     public List<CartItem> getAllById(List<Long> ids){
-        return cartItemRepository.findAllById(ids);
+        return repository.findAllById(ids);
     }
 
     @Transactional
@@ -38,31 +38,26 @@ public class CartItemService {
                 .price(product.getPrice().multiply(BigDecimal.valueOf(quantity)))
                 .cart(cart)
                 .build();
-        return cartItemRepository.save(cartItem);
+        return save(cartItem);
     }
 
     @Transactional
-    public void deleteCartItem(Long id){
-        cartItemRepository.deleteById(id);
-    }
-    
-    @Transactional
     public CartItem updateCartItem(CartItem cartItem) {
-        return cartItemRepository.save(cartItem);
+        return save(cartItem);
     }
     
     @Transactional
     public void removeItem(Long itemId, User user) {
-        CartItem cartItem = getById(itemId);
+        CartItem cartItem = findById(itemId);
 
         isCartOwnedByUser(cartItem,user);
 
-        deleteCartItem(itemId);
+        delete(cartItem);
     }
     
     @Transactional
     public CartItem updateQuantity(Long itemId, int quantity, User user) {
-        CartItem cartItem = getById(itemId);
+        CartItem cartItem = findById(itemId);
         isCartOwnedByUser(cartItem,user);
 
         if (quantity <= 0)

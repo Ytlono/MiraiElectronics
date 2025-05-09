@@ -34,7 +34,7 @@ public class PaymentService {
                         cardService.withdrawFromCard(cardId,sum,user))
         );
 
-        userService.saveUser(user);
+        userService.save(user);
         transactionService.createTransaction(user,sum,"top-Up balance sum:" + String.valueOf(sum),TransactionType.TOP_UP);
         return user.getBalance();
     }
@@ -42,7 +42,7 @@ public class PaymentService {
     @Transactional
     public void refundToUser(BigDecimal amount, User user) {
         user.setBalance(user.getBalance().add(amount));
-        userService.saveUser(user);
+        userService.save(user);
     }
 }
 
