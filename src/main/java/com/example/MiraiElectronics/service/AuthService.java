@@ -31,7 +31,7 @@ public class AuthService {
                 .role(Role.USER)
                 .build();
 
-        userService.saveUser(user);
+        userService.save(user);
         cartService.createCart(user);
     }
 

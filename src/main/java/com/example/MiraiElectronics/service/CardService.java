@@ -4,7 +4,9 @@ import com.example.MiraiElectronics.dto.CardDTO;
 import com.example.MiraiElectronics.repository.CardRepository;
 import com.example.MiraiElectronics.repository.realization.Card;
 import com.example.MiraiElectronics.repository.realization.User;
+import com.example.MiraiElectronics.service.Generic.GenericEntityService;
 import com.example.MiraiElectronics.service.Parser.CardParserService;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,27 +16,25 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Service
-public class CardService {
+public class CardService extends GenericEntityService<Card,Long> {
     private final CardRepository cardRepository;
     private final CardParserService cardParserService;
     private final PasswordEncoder passwordEncoder;
 
-    public CardService(CardRepository cardRepository, CardParserService cardParserService) {
+    public CardService(CardRepository cardRepository, CardParserService cardParserService, PasswordEncoder passwordEncoder) {
+        super(cardRepository);
         this.cardRepository = cardRepository;
         this.cardParserService = cardParserService;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Card addCard(CardDTO cardDTO, User user) {
         validateCard(cardDTO);
 
-        String hashedCardNumber = passwordEncoder.encode(cardDTO.getFullCardNumber());
-        String hashedCVV = passwordEncoder.encode(cardDTO.getCvv());
-
         Card card = Card.builder()
                 .maskedCardNumber(cardParserService.maskCardNumber(cardDTO.getFullCardNumber()))
-                .fullCardNumberHash(hashedCardNumber)
-                .cvvHash(hashedCVV)
+                .fullCardNumberHash(passwordEncoder.encode(cardDTO.getFullCardNumber()))
+                .cvvHash(passwordEncoder.encode(cardDTO.getCvv()))
                 .expiryDate(cardDTO.getExpiryDate())
                 .balance(cardDTO.getBalance() != null ? cardDTO.getBalance() : BigDecimal.ZERO)
                 .user(user)
@@ -54,11 +54,6 @@ public class CardService {
         return cardRepository.getAllUserCards(user);
     }
 
-    public Card findById(Long cardId){
-        return cardRepository.findById(cardId)
-                .orElseThrow(() -> new IllegalStateException("No card with id " + cardId));
-    }
-
     public void deleteCard(Long cardId, User currentUser) {
         Card card = findById(cardId);
         validateCardOwnership(card, currentUser);
@@ -72,11 +67,10 @@ public class CardService {
         validateSufficientBalance(amount, card);
 
         card.setBalance(card.getBalance().subtract(amount));
-        saveCard(card);
+        save(card);
 
         return amount;
     }
-
 
     public void validateCard(CardDTO cardDTO) {
         if(!cardParserService.isValidCardNumber(cardDTO.getFullCardNumber()))
@@ -89,10 +83,6 @@ public class CardService {
             throw new IllegalArgumentException("Incorrect card expiry date format");
     }
 
-    @Transactional
-    public void saveCard(Card card) {
-        cardRepository.save(card);
-    }
 
     public void validateSufficientBalance(BigDecimal sum, Card card) {
         if (sum.compareTo(BigDecimal.ZERO) <= 0)

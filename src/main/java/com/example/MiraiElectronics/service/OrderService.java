@@ -1,31 +1,29 @@
 package com.example.MiraiElectronics.service;
 
 import com.example.MiraiElectronics.dto.OrderRequest;
-import com.example.MiraiElectronics.dto.UserSessionDTO;
 import com.example.MiraiElectronics.repository.OrderRepository;
-import com.example.MiraiElectronics.repository.realization.CartItem;
 import com.example.MiraiElectronics.repository.realization.Order;
 import com.example.MiraiElectronics.repository.realization.OrderItem;
 import com.example.MiraiElectronics.repository.realization.User;
 import com.example.MiraiElectronics.repository.repositoryEnum.TransactionType;
-import jakarta.servlet.http.HttpServletRequest;
+import com.example.MiraiElectronics.service.Generic.GenericEntityService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class OrderService {
+public class OrderService extends GenericEntityService<Order,Long> {
     private final OrderRepository orderRepository;
     private final OrderItemService orderItemService;
     private final PaymentService paymentService;
     private final TransactionService transactionService;
 
     public OrderService(OrderRepository orderRepository, OrderItemService orderItemService, PaymentService paymentService, TransactionService transactionService) {
+        super(orderRepository);
         this.orderRepository = orderRepository;
         this.orderItemService = orderItemService;
         this.paymentService = paymentService;
@@ -64,39 +62,21 @@ public class OrderService {
                 TransactionType.PURCHASE
         );
 
-        return ResponseEntity.ok(orderRepository.save(order));
+        return ResponseEntity.ok(save(order));
     }
-
 
     public boolean isOrderSuccessful(){
         return paymentService.isPayed();
     }
 
-    public Order getOrderById(Long id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + id));
-    }
-    
     public Order getOrderByIdAndUserId(Long orderId, User user) {
         return orderRepository.findById(orderId)
                 .filter(order -> order.getUser().equals(user))
                 .orElse(null);
     }
 
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
-    }
-
     public List<Order> getUserOrders(User user) {
-        return orderRepository.findAllByCustomerId(user);
-    }
-
-    @Transactional
-    public void deleteOrderById(Long id) {
-        if (!orderRepository.existsById(id)) {
-            throw new IllegalArgumentException("Order not found with id: " + id);
-        }
-        orderRepository.deleteById(id);
+        return orderRepository.findAllByUser(user);
     }
 
     @Transactional
@@ -118,20 +98,20 @@ public class OrderService {
                 TransactionType.REFUND
         );
 
-        orderRepository.save(order);
+        save(order);
     }
 
     @Transactional
     public void updateShippingAddress(Long orderId, String newAddress) {
-        Order order = getOrderById(orderId);
+        Order order = findById(orderId);
         order.setShippingAddress(newAddress);
-        orderRepository.save(order);
+        save(order);
     }
 
     @Transactional
     public void updateOrderStatus(Long id, String status) {
-        Order order = getOrderById(id);
+        Order order = findById(id);
         order.setStatus(status);
-        orderRepository.save(order);
+        save(order);
     }
 }

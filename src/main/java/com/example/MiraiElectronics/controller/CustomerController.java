@@ -38,7 +38,7 @@ public class CustomerController extends BaseController{
 
     @DeleteMapping
     public ResponseEntity<?> deleteUser(HttpServletRequest request) {
-        userService.deleteUser(getFullUserOrThrow(request));
+        userService.delete(getFullUserOrThrow(request));
         return ResponseEntity.ok("deleted");
     }
 }
