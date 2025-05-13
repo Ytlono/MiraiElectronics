@@ -23,43 +23,45 @@ public class ProductController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<?> addProduct(@RequestBody ProductDTO productDTO){
+    public ResponseEntity<Product> addProduct(@RequestBody ProductDTO productDTO) {
         return ResponseEntity.ok(productService.addProduct(productDTO));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping
-    public ResponseEntity<?> deleteProduct(@RequestParam("id") Long productId){
-        productService.deleteProduct(productId);
-        return ResponseEntity.ok("deleted");
+    public ResponseEntity<String> deleteProduct(@RequestParam("id") Long productId) {
+        productService.deleteById(productId);
+        return ResponseEntity.ok("Product deleted successfully");
     }
 
     @GetMapping
-    public ResponseEntity<?> getProduct(@RequestParam("id") Long productId) {
+    public ResponseEntity<Product> getProduct(@RequestParam("id") Long productId) {
         return ResponseEntity.ok(productService.findById(productId));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping
-    public ResponseEntity<?> updateProduct(@RequestParam("id") Long productId,ProductDTO productDTO){
-        return ResponseEntity.ok(productService.updateProduct(productId,productDTO));
+    public ResponseEntity<Product> updateProduct(@RequestParam("id") Long productId,
+                                                 @RequestBody ProductDTO productDTO) {
+        return ResponseEntity.ok(productService.updateProduct(productId, productDTO));
     }
 
     @GetMapping("/category")
-    public ResponseEntity<?> getProductsByCategory(@RequestParam("id") Long categoryId) {
+    public ResponseEntity<List<Product>> getProductsByCategory(@RequestParam("id") Long categoryId) {
         return ResponseEntity.ok(productService.findByCategoryId(categoryId));
     }
 
-    @PostMapping("/category/sort")
-    public ResponseEntity<?> sortProducts(@RequestParam("id") Long categoryId,
-                                          @RequestParam("sort") int sortId) {
-        return ResponseEntity.ok(productService.sorter(categoryId, sortId));
+    @PostMapping("/category/filter")
+    public ResponseEntity<List<Product>> filterProducts(@RequestParam("id") Long categoryId,
+                                                        @RequestParam(name = "sort", defaultValue = "0") int sortId,
+                                                        @RequestBody FilterDTO filterDTO) {
+        return ResponseEntity.ok(productService.filterProducts(categoryId, filterDTO, sortId));
     }
 
-    @PostMapping("/category/filter")
-    public ResponseEntity<?> filterProducts(@RequestParam("id") Long categoryId,
-                                            @RequestBody FilterDTO filterDTO) {
-        return ResponseEntity.ok(productService.filterProducts(categoryId, filterDTO));
+    @GetMapping("/all")
+    public ResponseEntity<List<Product>> getAllProducts() {
+        return ResponseEntity.ok(productService.findAll());
     }
 }
+
 

@@ -20,11 +20,15 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+
     @GetMapping("/get")
     public ResponseEntity<?> getCategory(@RequestParam Long id) {
         return ResponseEntity.ok(categoryService.findById(id));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<?> getAllCategories() {
         return ResponseEntity.ok(categoryService.findAll());

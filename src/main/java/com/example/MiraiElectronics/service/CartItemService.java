@@ -13,11 +13,8 @@ import java.util.List;
 @Service
 public class CartItemService extends GenericEntityService<CartItem,Long> {
 
-    private final CartItemRepository cartItemRepository;
-
     public CartItemService(CartItemRepository cartItemRepository) {
         super(cartItemRepository);
-        this.cartItemRepository = cartItemRepository;
     }
 
     public CartItem getByIdForUser(Long id,User user){

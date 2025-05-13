@@ -16,5 +16,4 @@ public class TemplateSortService {
         Collections.sort(items, comparator);
         return items;
     }
-
 }

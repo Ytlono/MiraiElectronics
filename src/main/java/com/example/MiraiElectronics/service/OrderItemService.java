@@ -13,12 +13,10 @@ import java.util.List;
 
 @Service
 public class OrderItemService extends GenericEntityService<OrderItem,Long> {
-    private final OrderItemRepository orderItemRepository;
     private final CartItemService cartItemService;
 
     public OrderItemService(OrderItemRepository orderItemRepository, CartItemService cartItemService) {
         super(orderItemRepository);
-        this.orderItemRepository = orderItemRepository;
         this.cartItemService = cartItemService;
     }
 

@@ -5,7 +5,6 @@ import com.example.MiraiElectronics.dto.UpdateUserDataDTO;
 import com.example.MiraiElectronics.repository.UserRepository;
 import com.example.MiraiElectronics.repository.realization.User;
 import com.example.MiraiElectronics.service.Generic.GenericEntityService;
-import com.example.MiraiElectronics.service.Parser.UserParserService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
