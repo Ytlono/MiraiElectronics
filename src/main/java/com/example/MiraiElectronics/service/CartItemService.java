@@ -8,13 +8,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class CartItemService extends GenericEntityService<CartItem,Long> {
+    private final CartItemRepository cartItemRepository;
 
     public CartItemService(CartItemRepository cartItemRepository) {
         super(cartItemRepository);
+        this.cartItemRepository = cartItemRepository;
     }
 
     public CartItem getByIdForUser(Long id,User user){
@@ -69,5 +72,13 @@ public class CartItemService extends GenericEntityService<CartItem,Long> {
         if (!cartItem.getCart().getUser().equals(user)) {
             throw new IllegalArgumentException("Товар не принадлежит корзине пользователя");
         }
+    }
+
+    public List<String> findUserEmailsByProductId(Long productId){
+        return cartItemRepository.findUserEmailsByProductId(productId);
+    }
+
+    public List<CartItem> findByCreatedAtBefore(LocalDateTime threshold){
+        return cartItemRepository.findByCreatedAtBefore(threshold);
     }
 }

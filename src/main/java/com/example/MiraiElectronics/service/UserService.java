@@ -10,8 +10,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.annotation.Primary;
 
 @Service
+@Primary
 public class UserService extends GenericEntityService<User,Long> implements UserDetailsService{
 
     private final UserRepository userRepository;

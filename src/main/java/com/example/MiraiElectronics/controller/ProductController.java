@@ -2,6 +2,7 @@ package com.example.MiraiElectronics.controller;
 
 import com.example.MiraiElectronics.dto.FilterDTO;
 import com.example.MiraiElectronics.dto.ProductDTO;
+import com.example.MiraiElectronics.dto.UpdatePrice;
 import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.service.ProductServices.ProductService;
 import com.example.MiraiElectronics.service.CategoryService;
@@ -62,6 +63,12 @@ public class ProductController {
     public ResponseEntity<List<Product>> getAllProducts() {
         return ResponseEntity.ok(productService.findAll());
     }
+
+    @PutMapping("/change-price")
+    public ResponseEntity<?> updateProductPrice(@RequestBody UpdatePrice updatePrice){
+        return ResponseEntity.ok(productService.changePrice(updatePrice));
+    }
+
 }
 
 

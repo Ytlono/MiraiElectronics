@@ -8,7 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@PreAuthorize("ROLE_ADMIN")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 @RequestMapping("api/brand")
 public class BrandController extends BaseController{
 
@@ -20,8 +20,8 @@ public class BrandController extends BaseController{
     }
 
 
-    @GetMapping
-    public ResponseEntity<?> getBrandById(Long id){
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getBrandById(@PathVariable Long id){
         return ResponseEntity.ok(
                 brandService.findById(id)
         );
@@ -43,14 +43,14 @@ public class BrandController extends BaseController{
         );
     }
 
-    @DeleteMapping
-    public ResponseEntity<?> deleteBrandById(Long id){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteBrandById(@PathVariable Long id){
         brandService.deleteById(id);
         return ResponseEntity.ok().body("deleted");
     }
 
-    @PutMapping
-    public ResponseEntity<?> updateBrand(@RequestParam Long id,@RequestBody BrandDTO brandDTO){
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateBrand(@PathVariable Long id, @RequestBody BrandDTO brandDTO){
         return ResponseEntity.ok(
                 brandService.updateBrand(id,brandDTO)
         );

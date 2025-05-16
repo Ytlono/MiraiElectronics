@@ -1,0 +1,33 @@
+package com.example.MiraiElectronics.listeners.Reminders;
+
+import com.example.MiraiElectronics.events.ProductPriceChangedEvent;
+import com.example.MiraiElectronics.service.CartItemService;
+import com.example.MiraiElectronics.service.JavaMailSenderService;
+import com.example.MiraiElectronics.service.ProductServices.ProductService;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Component
+public class ProductReminderListener extends BaseReminderListener{
+
+
+    public ProductReminderListener(JavaMailSenderService mailSenderService,CartItemService cartItemService) {
+        super(cartItemService,mailSenderService);
+    }
+
+    @EventListener
+    public void onProductPriceChange(ProductPriceChangedEvent event) {
+        for(var email:getNecessaryEmails(event.getProductId())) {
+            mailSenderService.send(
+                    email,
+                    "Изменение цены продукта",
+                    String.format("Цена продукта с ID %d изменилась с %s на %s",
+                            event.getProductId(), event.getOldPrice(), event.getNewPrice())
+            );
+        }
+    }
+
+}
+

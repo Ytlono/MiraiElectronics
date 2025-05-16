@@ -3,16 +3,21 @@ package com.example.MiraiElectronics.service.ProductServices;
 import com.example.MiraiElectronics.Mapper.ProductMapper;
 import com.example.MiraiElectronics.dto.FilterDTO;
 import com.example.MiraiElectronics.dto.ProductDTO;
+import com.example.MiraiElectronics.dto.UpdatePrice;
+import com.example.MiraiElectronics.events.ProductPriceChangedEvent;
 import com.example.MiraiElectronics.repository.realization.Product;
 import com.example.MiraiElectronics.repository.ProductRepository;
 import com.example.MiraiElectronics.service.CategoryService;
 import com.example.MiraiElectronics.service.FilterServices.FilterService;
 import com.example.MiraiElectronics.service.Generic.GenericEntityService;
 import com.example.MiraiElectronics.service.TemplateSortService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -20,12 +25,15 @@ public class ProductService extends GenericEntityService<Product,Long> {
     protected final ProductRepository productRepository;
     private final CategoryService categoryService;
     private final ProductMapper productMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public ProductService(ProductRepository productRepository, CategoryService categoryService, ProductMapper productMapper) {
+    public ProductService(ProductRepository productRepository, CategoryService categoryService, ProductMapper productMapper,
+                          ApplicationEventPublisher eventPublisher) {
         super(productRepository);
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.productMapper = productMapper;
+        this.eventPublisher = eventPublisher;
     }
 
     public Product addProduct(ProductDTO productDTO){return productRepository.save(toEntity(productDTO));}
@@ -33,7 +41,23 @@ public class ProductService extends GenericEntityService<Product,Long> {
     public Product updateProduct(Long id, ProductDTO productDTO) {
         Product product = findById(id);
         productMapper.updateProduct(toEntity(productDTO), product);
-        return productRepository.save(product);
+        return save(product);
+    }
+
+    @Transactional
+    public BigDecimal changePrice(UpdatePrice dto) {
+        Product product = findById(dto.getId());
+        BigDecimal oldPrice = product.getPrice();
+        product.setPrice(dto.getPrice());
+        BigDecimal savedPrice = save(product).getPrice();
+
+        eventPublisher.publishEvent(ProductPriceChangedEvent.builder()
+                .productId(product.getProductId())
+                .oldPrice(oldPrice)
+                .newPrice(savedPrice)
+                .build()
+        );
+        return savedPrice;
     }
 
 

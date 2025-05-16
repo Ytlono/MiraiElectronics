@@ -31,8 +31,16 @@ public class CartItem {
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private java.time.LocalDateTime createdAt;
+
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
     @JsonBackReference
     private Cart cart;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = java.time.LocalDateTime.now();
+    }
 }

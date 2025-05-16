@@ -8,6 +8,5 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order,Long> {
-    @Query("SELECT o FROM Order o WHERE o.user = :user")
     List<Order> findAllByUser(User user);
 }
