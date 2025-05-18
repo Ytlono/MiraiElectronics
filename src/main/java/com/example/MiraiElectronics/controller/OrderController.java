@@ -51,4 +51,10 @@ public class OrderController extends BaseController{
         return ResponseEntity.ok(Map.of("message", "Заказ отменен"));
     }
 
+    @PutMapping
+    public ResponseEntity<?> updateOrderState(){
+
+        return ResponseEntity.ok(1);
+    }
+
 }

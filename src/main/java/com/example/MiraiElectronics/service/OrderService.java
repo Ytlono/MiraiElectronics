@@ -1,6 +1,7 @@
 package com.example.MiraiElectronics.service;
 
 import com.example.MiraiElectronics.dto.OrderRequest;
+import com.example.MiraiElectronics.events.OrderSatusUpdateEvent;
 import com.example.MiraiElectronics.repository.OrderRepository;
 import com.example.MiraiElectronics.repository.realization.Order;
 import com.example.MiraiElectronics.repository.realization.OrderItem;
@@ -21,13 +22,15 @@ public class OrderService extends GenericEntityService<Order,Long> {
     private final OrderItemService orderItemService;
     private final PaymentService paymentService;
     private final TransactionService transactionService;
+    private final DomainEventPublisher eventPublisher;
 
-    public OrderService(OrderRepository orderRepository, OrderItemService orderItemService, PaymentService paymentService, TransactionService transactionService) {
+    public OrderService(OrderRepository orderRepository, OrderItemService orderItemService, PaymentService paymentService, TransactionService transactionService, DomainEventPublisher eventPublisher) {
         super(orderRepository);
         this.orderRepository = orderRepository;
         this.orderItemService = orderItemService;
         this.paymentService = paymentService;
         this.transactionService = transactionService;
+        this.eventPublisher = eventPublisher;
     }
 
 
@@ -82,13 +85,8 @@ public class OrderService extends GenericEntityService<Order,Long> {
     @Transactional
     public void cancelOrder(Long orderId, User user) {
         Order order = getOrderByIdAndUserId(orderId, user);
-        if (order == null)
-            throw new IllegalStateException("Order doesn't exist");
 
-        if (!order.getStatus().equals("PROCESSING") || order.getStatus().equals("PENDING"))
-            throw new IllegalStateException("Невозможно отменить заказ в текущем статусе: " + order.getStatus());
-
-        order.setStatus("CANCELLED");
+        updateOrderStatus(orderId,"CANCELLED");
         paymentService.refundToUser(order.getTotalAmount(),order.getUser());
 
         transactionService.createTransaction(
@@ -112,6 +110,13 @@ public class OrderService extends GenericEntityService<Order,Long> {
     public void updateOrderStatus(Long id, String status) {
         Order order = findById(id);
         order.setStatus(status);
+        createOrderStatusUpdateEvent(order);
         save(order);
+    }
+
+    private void createOrderStatusUpdateEvent(Order order){
+        OrderSatusUpdateEvent.builder()
+                .order(order)
+                .build();
     }
 }
