@@ -1,6 +1,6 @@
 package com.example.MiraiElectronics.controller.valid;
 
-import com.example.MiraiElectronics.service.Parser.CardParserService;
+import com.example.MiraiElectronics.Parser.CardParserService;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 

@@ -1,4 +1,4 @@
-package com.example.MiraiElectronics.service.Parser;
+package com.example.MiraiElectronics.Parser;
 
 import org.springframework.stereotype.Service;
 
@@ -6,9 +6,8 @@ import org.springframework.stereotype.Service;
 public class ParserService {
 
     public String trimString(String input) {
-        if (input == null) {
+        if (input == null)
             return null;
-        }
         return input.trim();
     }
 
@@ -17,9 +16,8 @@ public class ParserService {
     }
 
     public boolean isInteger(String input) {
-        if (isEmptyString(input)) {
+        if (isEmptyString(input))
             return false;
-        }
         try {
             Integer.parseInt(input.trim());
             return true;
@@ -29,9 +27,8 @@ public class ParserService {
     }
 
     public boolean isDouble(String input) {
-        if (isEmptyString(input)) {
+        if (isEmptyString(input))
             return false;
-        }
         try {
             Double.parseDouble(input.trim());
             return true;
@@ -41,23 +38,20 @@ public class ParserService {
     }
 
     public Integer parseInteger(String input) {
-        if (!isInteger(input)) {
+        if (!isInteger(input))
             return null;
-        }
         return Integer.parseInt(input.trim());
     }
 
     public Double parseDouble(String input) {
-        if (!isDouble(input)) {
+        if (!isDouble(input))
             return null;
-        }
         return Double.parseDouble(input.trim());
     }
 
     public String extractDigitsOnly(String input) {
-        if (input == null) {
+        if (input == null)
             return null;
-        }
         return input.replaceAll("[^0-9]", "");
     }
 }

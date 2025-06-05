@@ -100,23 +100,23 @@ public class OrderService extends GenericEntityService<Order,Long> {
     }
 
     @Transactional
-    public void updateShippingAddress(Long orderId, String newAddress) {
+    public Order updateShippingAddress(Long orderId, String newAddress) {
         Order order = findById(orderId);
         order.setShippingAddress(newAddress);
-        save(order);
+        return save(order);
     }
 
     @Transactional
-    public void updateOrderStatus(Long id, String status) {
+    public Order updateOrderStatus(Long id, String status) {
         Order order = findById(id);
         order.setStatus(status);
         createOrderStatusUpdateEvent(order);
-        save(order);
+        return save(order);
     }
 
     private void createOrderStatusUpdateEvent(Order order){
-        OrderSatusUpdateEvent.builder()
+        eventPublisher.publish(OrderSatusUpdateEvent.builder()
                 .order(order)
-                .build();
+                .build());
     }
 }

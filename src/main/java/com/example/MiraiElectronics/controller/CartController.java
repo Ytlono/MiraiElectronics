@@ -1,21 +1,14 @@
 package com.example.MiraiElectronics.controller;
 
-import com.example.MiraiElectronics.dto.UserSessionDTO;
-import com.example.MiraiElectronics.repository.realization.Cart;
-import com.example.MiraiElectronics.repository.realization.CartItem;
-import com.example.MiraiElectronics.repository.realization.Product;
-import com.example.MiraiElectronics.repository.realization.User;
 import com.example.MiraiElectronics.service.CartItemService;
 import com.example.MiraiElectronics.service.CartService;
-import com.example.MiraiElectronics.service.ProductServices.ProductService;
+import com.example.MiraiElectronics.service.ProductService;
 import com.example.MiraiElectronics.service.SessionService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.Map;
 
 @RestController

@@ -1,4 +1,4 @@
-package com.example.MiraiElectronics.service.Parser;
+package com.example.MiraiElectronics.Parser;
 
 import org.springframework.stereotype.Service;
 

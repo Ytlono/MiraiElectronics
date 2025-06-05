@@ -6,7 +6,9 @@ import com.example.MiraiElectronics.service.CartItemService;
 import com.example.MiraiElectronics.service.JavaMailSenderService;
 import com.example.MiraiElectronics.service.OrderService;
 import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
+@Component
 public class OrderRemindListener extends BaseReminderListener{
     private final OrderService orderService;
 

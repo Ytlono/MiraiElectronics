@@ -1,6 +1,7 @@
 package com.example.MiraiElectronics.controller;
 
 import com.example.MiraiElectronics.dto.OrderRequest;
+import com.example.MiraiElectronics.dto.OrderStateUpdateDTO;
 import com.example.MiraiElectronics.repository.realization.Order;
 import com.example.MiraiElectronics.service.OrderService;
 import com.example.MiraiElectronics.service.SessionService;
@@ -32,11 +33,10 @@ public class OrderController extends BaseController{
     
     @GetMapping("/getOrder")
     public ResponseEntity<?> getOrderById(@RequestParam Long orderId, HttpServletRequest request) {
-        Order order = orderService.getOrderByIdAndUserId(orderId, getFullUserOrThrow(request));
-        if (order == null)
-            return ResponseEntity.notFound().build();
-
-        return ResponseEntity.ok(order);
+        return ResponseEntity.ok(
+                orderService.getOrderByIdAndUserId(
+                        orderId, getFullUserOrThrow(request))
+        );
     }
 
     @PostMapping("/create")
@@ -51,10 +51,9 @@ public class OrderController extends BaseController{
         return ResponseEntity.ok(Map.of("message", "Заказ отменен"));
     }
 
-    @PutMapping
-    public ResponseEntity<?> updateOrderState(){
-
-        return ResponseEntity.ok(1);
+    @PutMapping("/update-status")
+    public ResponseEntity<?> updateOrderState(@RequestBody OrderStateUpdateDTO orderStateUpdateDTO){
+        return ResponseEntity.ok(orderService.updateOrderStatus(orderStateUpdateDTO.getOrderId(),orderStateUpdateDTO.getStatus()));
     }
 
 }

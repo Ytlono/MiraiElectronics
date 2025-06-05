@@ -1,18 +1,13 @@
 package com.example.MiraiElectronics.controller;
 
 import com.example.MiraiElectronics.dto.UpdateUserDataDTO;
-import com.example.MiraiElectronics.dto.UserSessionDTO;
 import com.example.MiraiElectronics.repository.realization.User;
-import com.example.MiraiElectronics.service.Parser.UserParserService;
 import com.example.MiraiElectronics.service.SessionService;
 import com.example.MiraiElectronics.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
